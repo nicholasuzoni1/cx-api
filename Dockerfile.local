@@ -1,0 +1,24 @@
+# Use NodeJS base image
+FROM node:20.9.0
+
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Create app directory
+WORKDIR /usr/src/app
+
+# Copy both package.json and package-lock.json
+COPY package*.json ./
+
+# Install app dependencies using pnpm
+RUN pnpm install
+
+# Bundle app source
+COPY . .
+
+# Expose the port
+EXPOSE 3000
+
+RUN pnpm run build cx-api
+
+CMD ["npm", "run", "start:prod:cx-api"]

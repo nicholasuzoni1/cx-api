@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/cx-api/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "assets": [
+      "**/*.proto"
+    ],
+    "watchAssets": true,
+    "tsConfigPath": "apps/cx-api/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/cx-api",
+  "projects": {
+    "cx-api": {
+      "type": "application",
+      "root": "apps/cx-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/cx-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/cx-api/tsconfig.app.json"
+      }
+    },
+    "shared-lib": {
+      "type": "library",
+      "root": "libs/shared-lib",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared-lib/src",
+      "compilerOptions": {
+        "assets": [
+          "**/*.proto"
+        ],
+        "watchAssets": true,
+        "tsConfigPath": "libs/shared-lib/tsconfig.lib.json"
+      }
+    },
+    "lang-lib": {
+      "type": "library",
+      "root": "libs/lang-lib",
+      "entryFile": "index",
+      "sourceRoot": "libs/lang-lib/src",
+      "compilerOptions": {
+        "assets": [
+          "**/*.proto"
+        ],
+        "watchAssets": true,
+        "tsConfigPath": "libs/lang-lib/tsconfig.lib.json"
+      }
+    },
+    "shared-auth": {
+      "type": "library",
+      "root": "libs/shared-auth",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared-auth/src",
+      "compilerOptions": {
+        "assets": [
+          "**/*.proto"
+        ],
+        "watchAssets": true,
+        "tsConfigPath": "libs/shared-auth/tsconfig.lib.json"
+      }
+    }  
+  }
+}

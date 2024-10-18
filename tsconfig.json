@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "esModuleInterop": true,
+    "paths": {
+      "@app/shared-lib": ["libs/shared-lib/src"],
+      "@app/shared-lib/*": ["libs/shared-lib/src/*"],
+      "@app/proto-lib": ["libs/proto-lib/src"],
+      "@app/proto-lib/*": ["libs/proto-lib/src/*"],
+      "@app/lang-lib": ["libs/lang-lib/src"],
+      "@app/lang-lib/*": ["libs/lang-lib/src/*"],
+      "@app/grpc-lib": ["libs/grpc-lib/src"],
+      "@app/grpc-lib/*": ["libs/grpc-lib/src/*"],
+      "@app/grpc-clients": ["libs/grpc-clients/src"],
+      "@app/grpc-clients/*": ["libs/grpc-clients/src/*"],
+      "@app/shared-auth": ["libs/shared-auth/src"],
+      "@app/shared-auth/*": ["libs/shared-auth/src/*"],
+      "@app/load-managment": ["libs/load-managment/src"],
+      "@app/load-managment/*": ["libs/load-managment/src/*"],
+      "@app/permission-management": ["libs/permission-management/src"],
+      "@app/permission-management/*": ["libs/permission-management/src/*"] 
+    }
+  }
+}
