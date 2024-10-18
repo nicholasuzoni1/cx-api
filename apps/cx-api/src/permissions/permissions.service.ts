@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePermissionDto } from './dto/create-permission.dto';
-import { CreatePermissionAdditionalData } from './converters/create-permission';
 import { Permission_Scope_List } from '@app/permission-management/permission-scopes';
 import {
   AlreadyExistsErrorHttp,
@@ -23,6 +22,7 @@ import {
 } from '@app/permission-management/permission-module-keys';
 import { PermissionModuleKeysResponseEntity } from './entities/list-permission-module-keys.response';
 import { UserSessionEntity } from 'apps/cx-api/entities/user-session.entity';
+import { CreatePermissionAdditionalData } from './additionals/create-permission';
 
 @Injectable()
 export class PermissionsService {

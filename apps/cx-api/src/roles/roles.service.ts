@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { CreateRoleAdditionalData } from './converters/create-role';
-import { UpdateRoleAdditionalData } from './converters/update-role';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'apps/cx-api/entities/user.entity';
 import { DataSource, In, QueryRunner, Repository } from 'typeorm';
@@ -13,6 +11,8 @@ import { LangKeys } from '@app/lang-lib/lang-keys';
 import { Primary_User_List } from '@app/permission-management/users';
 import { RoleResponseEntity } from './entities/role.response';
 import { UserSessionEntity } from 'apps/cx-api/entities/user-session.entity';
+import { CreateRoleAdditionalData } from './additionals/create-role';
+import { UpdateRoleAdditionalData } from './additionals/update-role';
 
 @Injectable()
 export class RolesService {

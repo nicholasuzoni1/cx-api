@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { CreateUserAdditionalData } from './converters/create-user';
-import { UpdateUserAdditionalData } from './converters/update-user';
 import { VerifyCreatedUserDto } from './dto/verify-created-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'apps/cx-api/entities/user.entity';
@@ -22,6 +20,8 @@ import { DEFAULT_OTP, SALT_ROUND } from '@app/shared-lib/constants/config';
 import { All_User_Types } from '@app/permission-management/users';
 import { OTP_TYPE_ENUM } from '@app/shared-lib/enums/otp-type';
 import { UserResponseEntity } from './entities/user.response';
+import { CreateUserAdditionalData } from './additionals/create-user';
+import { UpdateUserAdditionalData } from './additionals/update-user';
 @Injectable()
 export class UsersService {
   constructor(

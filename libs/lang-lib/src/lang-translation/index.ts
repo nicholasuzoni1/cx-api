@@ -82,4 +82,9 @@ export const LangTranslation: LangTranslationType = {
     english: 'You don not have access permission',
     spanish: 'You don not have access permission',
   },
+  // Load Keys
+  [LangKeys.LoadNotFoundErrorKey]: {
+    english: 'Load not found',
+    spanish: 'Load not found',
+  },
 } as const;

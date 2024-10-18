@@ -20,4 +20,6 @@ export const LangKeys = {
   AdminAccessOnlyErrorKey: 'AdminAccessOnlyErrorKey',
   // AccessPermissionNotFound
   AccessPermissionNotFound: 'AccessPermissionNotFound',
+  // Load Error Keys
+  LoadNotFoundErrorKey: 'LoadNotFoundErrorKey',
 } as const;

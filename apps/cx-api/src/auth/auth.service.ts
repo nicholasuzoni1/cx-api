@@ -6,7 +6,6 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ResendForgotPasswordOtpDto } from './dto/resend-forgot-password-otp.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { UpdatePasswordAdditionalData } from './converters/update-password';
 import { VerifyResetPasswordOtpDto } from './dto/verify-reset-password-otp.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'apps/cx-api/entities/user.entity';
@@ -48,6 +47,7 @@ import { ResetPasswordResponseEntity } from './entities/reset-password-response'
 import { ResendForgotPasswordOtpResponseEntity } from './entities/resend-forgot-password-otp-response';
 import { UpdatePasswordResponseEntity } from './entities/update-password-response';
 import { OTP_TYPE_ENUM } from '@app/shared-lib/enums/otp-type';
+import { UpdatePasswordAdditionalData } from './additionals/update-password';
 
 @Injectable()
 export class AuthService {

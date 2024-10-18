@@ -46,7 +46,7 @@ import { LoadModule } from './load/load.module';
         ContractEntity,
         LoadStatusEntity,
       ],
-      synchronize: !!process.env.CX_DB_SYNC,
+      synchronize: !!process.env.POSTGRES_DB_SYNC,
       useUTC: true,
     }),
     AuthModule,
