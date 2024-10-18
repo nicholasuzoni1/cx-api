@@ -37,6 +37,9 @@ import { DefaultController } from './default.controller'; // Import your control
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DATABASE,
+      ssl: {
+        rejectUnauthorized: false,
+      },
       entities: [
         RoleEntity,
         UserEntity,
