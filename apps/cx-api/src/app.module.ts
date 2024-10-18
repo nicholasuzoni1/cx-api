@@ -17,6 +17,8 @@ import { ContractEntity } from '../entities/contract.entity';
 import { LoadStatusEntity } from '../entities/load-status.entity';
 import { GuardModule } from './guard/guard.module';
 import { LoadModule } from './load/load.module';
+import { DefaultController } from './default.controller'; // Import your controller
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -56,6 +58,6 @@ import { LoadModule } from './load/load.module';
     GuardModule,
     LoadModule,
   ],
-  controllers: [],
+  controllers: [DefaultController],
 })
 export class AppModule {}
