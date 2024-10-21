@@ -43,25 +43,18 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory: (errors) => {
-        //use this code if you want to customize the error reponse //https://docs.nestjs.com/techniques/validation
         const errorMessages = errors.map((error) => {
-          // Collect all constraint messages for the current property
           const messages = Object.values(error.constraints);
           return `${error.property}: ${messages.join(', ')}`;
         });
-
-        // Join all error messages into a single string
         const formattedErrors = errorMessages.join('; ');
-
-        // Log the errors for debugging
-        // console.log('Validation =>', errors);
         throw new ValidationErrorHttp(
           LangKeys.ValidationErrorKey,
           formattedErrors,
         );
       },
       transform: true,
-      stopAtFirstError: true, //it stops the first error but over the same property
+      stopAtFirstError: true,
     }),
   );
 

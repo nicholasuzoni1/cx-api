@@ -17,6 +17,8 @@ import { ContractEntity } from '../entities/contract.entity';
 import { LoadStatusEntity } from '../entities/load-status.entity';
 import { GuardModule } from './guard/guard.module';
 import { LoadModule } from './load/load.module';
+import { DefaultController } from './default.controller'; // Import your controller
+
 import { BidModule } from './bid/bid.module';
 @Module({
   imports: [
@@ -58,6 +60,6 @@ import { BidModule } from './bid/bid.module';
     LoadModule,
     BidModule,
   ],
-  controllers: [],
+  controllers: [DefaultController],
 })
 export class AppModule {}
