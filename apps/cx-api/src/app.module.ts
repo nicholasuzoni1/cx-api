@@ -19,6 +19,7 @@ import { GuardModule } from './guard/guard.module';
 import { LoadModule } from './load/load.module';
 import { DefaultController } from './default.controller'; // Import your controller
 
+import { BidModule } from './bid/bid.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -57,6 +58,7 @@ import { DefaultController } from './default.controller'; // Import your control
     UsersModule,
     GuardModule,
     LoadModule,
+    BidModule,
   ],
   controllers: [DefaultController],
 })

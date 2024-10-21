@@ -120,7 +120,7 @@ export function IsMaxBudgetGreaterThanMinBudget(
 }
 
 export type LoadAdditionalData = {
-  associatedTo: number;
+  shipperId: number;
   createdBy?: number;
 };
 

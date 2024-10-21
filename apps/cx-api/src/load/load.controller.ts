@@ -27,6 +27,8 @@ import { DeleteLoadResponseType } from './entities/delete-load.response';
 import { UserTokenPayloadType } from '@app/permission-management';
 import { CommonPermissionGuard } from '../guard/guards/common-permission.guard';
 import { getAssociationId } from '@app/permission-management/get-association';
+import { SearchLoadsDto } from './dto/search-loads';
+import { CarrierGuard } from '../guard/guards/carrier.guard';
 @ApiBearerAuth()
 @ApiTags('Loads')
 @Controller('loads')
@@ -52,7 +54,7 @@ export class LoadController {
     try {
       const user = req.user as UserTokenPayloadType;
       const output = await this.loadService.create(input, {
-        associatedTo: getAssociationId(user),
+        shipperId: getAssociationId(user),
         createdBy: user.id,
       });
       return responseWrapper({
@@ -64,7 +66,7 @@ export class LoadController {
   }
 
   @Get('/')
-  @UseGuards(JwtAuthGuard, CommonPermissionGuard)
+  @UseGuards(JwtAuthGuard, ShipperGuard)
   @PermissionsDecorator({
     module: Module_Names.Loads,
     key: LoadsModuleKeys.LIST_LOADS,
@@ -78,9 +80,37 @@ export class LoadController {
     status: 400,
     description: 'Bad Request',
   })
-  async findAll() {
+  async findAll(@Request() req) {
     try {
-      const output = await this.loadService.findAll();
+      const user = req.user as UserTokenPayloadType;
+      const shipperId = getAssociationId(user);
+      const output = await this.loadService.findAll(shipperId);
+      return responseWrapper({
+        data: output,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Post('/search')
+  @UseGuards(JwtAuthGuard, CarrierGuard)
+  @PermissionsDecorator({
+    module: Module_Names.Loads,
+    key: LoadsModuleKeys.LIST_LOADS,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Loads received.',
+    type: ListLoadResponseType,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async searchLoads(@Request() req, @Body() input: SearchLoadsDto) {
+    try {
+      const output = await this.loadService.searchLoads(input);
       return responseWrapper({
         data: output,
       });

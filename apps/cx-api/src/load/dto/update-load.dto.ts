@@ -1,8 +1,8 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { CreateLoadDto } from './create-load.dto';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
+import { CreateLoadDto } from './create-load.dto';
 
-export class UpdateLoadDto extends PartialType(CreateLoadDto) {
+export class UpdateLoadDto extends CreateLoadDto {
   @IsNumber()
   @ApiProperty({
     description: 'The id of load',

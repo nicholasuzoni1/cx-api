@@ -38,14 +38,14 @@ export class LoadConverter {
       lat: input.destinationLocation.lat,
       lng: input.destinationLocation.lng,
     };
-    output.isPrivate = false;
-    output.associated_to = additionalData.associatedTo;
+    output.shipper_id = additionalData.shipperId;
     output.created_by = additionalData.createdBy;
 
     return output;
   }
 
   static toUpdateInput(output: LoadEntity, input: UpdateLoadDto) {
+    output.id = input.id;
     output.title = input.title;
     output.load_type = input.loadType;
     output.vehicle_type = input.vehicleType;
@@ -71,7 +71,6 @@ export class LoadConverter {
       lat: input.destinationLocation.lat,
       lng: input.destinationLocation.lng,
     };
-    output.isPrivate = false;
 
     return output;
   }
@@ -106,7 +105,7 @@ export class LoadConverter {
       lng: res.destination_location.lng,
     };
     output.isPrivate = false;
-    output.asssociatedTo = res.associated_to;
+    output.shipperId = res.shipper_id;
     output.createdBy = res.created_by;
     output.createdAt = res.created_at.toISOString();
     output.updatedAt = res.updated_at.toISOString();
