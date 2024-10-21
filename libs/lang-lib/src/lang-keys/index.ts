@@ -22,4 +22,6 @@ export const LangKeys = {
   AccessPermissionNotFound: 'AccessPermissionNotFound',
   // Load Error Keys
   LoadNotFoundErrorKey: 'LoadNotFoundErrorKey',
+  // Bid Error Keys
+  DuplicateBidErrorKey: 'DuplicateBidErrorKey',
 } as const;

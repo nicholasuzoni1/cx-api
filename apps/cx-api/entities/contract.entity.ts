@@ -5,18 +5,14 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  OneToOne,
 } from 'typeorm';
+import { LoadEntity } from './load.entity';
 
 @Entity('contracts')
 export class ContractEntity {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column()
-  load_id: number;
-
-  @Column()
-  shipper_id: number;
 
   @Column()
   carrier_id: number;
@@ -27,8 +23,8 @@ export class ContractEntity {
   @Column()
   status: string;
 
-  @CreateDateColumn({ type: 'timestamptz' })
-  completed_at: Date;
+  @OneToOne(() => LoadEntity, (load) => load.contract)
+  load: LoadEntity;
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date | null;

@@ -154,10 +154,10 @@ export class LoadResponseEntity {
   createdBy: number;
 
   @ApiProperty({
-    description: 'asssociatedTo',
+    description: 'shipperId',
     example: 1,
   })
-  asssociatedTo: number;
+  shipperId: number;
 
   @ApiProperty({
     description: 'createdAt',

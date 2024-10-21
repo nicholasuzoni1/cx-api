@@ -7,6 +7,7 @@ export const Module_Names = {
   Permssions: 'Permssions',
   Roles: 'Roles',
   Loads: 'Loads',
+  Bids: 'Bids',
 } as const;
 
 export const Permission_Module_List = [...Object.keys(Module_Names)] as const;

@@ -5,7 +5,13 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  OneToMany,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
+import { BidEntity } from './bid.entity';
+import { ContractEntity } from './contract.entity';
+import { LoadStatusEntity } from './load-status.entity';
 
 @Entity('loads')
 export class LoadEntity {
@@ -66,13 +72,25 @@ export class LoadEntity {
   @Column({
     default: false,
   })
-  isPrivate: boolean;
+  is_private: boolean;
 
   @Column()
   created_by: number;
 
   @Column()
-  associated_to: number;
+  shipper_id: number;
+
+  @OneToMany(() => BidEntity, (bid) => bid.load)
+  bids: BidEntity[];
+
+  @OneToOne(() => ContractEntity, (contract) => contract.load, {
+    cascade: true, // Optional: cascades operations like save and remove
+  })
+  @JoinColumn() // This specifies that this entity owns the relationship
+  contract: ContractEntity;
+
+  @OneToMany(() => LoadStatusEntity, (bid) => bid.load)
+  statuses: LoadStatusEntity[];
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;

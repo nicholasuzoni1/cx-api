@@ -5,15 +5,17 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
+import { LoadEntity } from './load.entity';
 
 @Entity('load_statuses')
 export class LoadStatusEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  load_id: number;
+  @ManyToOne(() => LoadEntity, (load) => load.statuses)
+  load: LoadEntity;
 
   @Column()
   status: string;

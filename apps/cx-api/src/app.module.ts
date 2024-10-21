@@ -17,6 +17,7 @@ import { ContractEntity } from '../entities/contract.entity';
 import { LoadStatusEntity } from '../entities/load-status.entity';
 import { GuardModule } from './guard/guard.module';
 import { LoadModule } from './load/load.module';
+import { BidModule } from './bid/bid.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -55,6 +56,7 @@ import { LoadModule } from './load/load.module';
     UsersModule,
     GuardModule,
     LoadModule,
+    BidModule,
   ],
   controllers: [],
 })

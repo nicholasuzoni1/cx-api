@@ -87,4 +87,9 @@ export const LangTranslation: LangTranslationType = {
     english: 'Load not found',
     spanish: 'Load not found',
   },
+  // Bid keys
+  [LangKeys.DuplicateBidErrorKey]: {
+    english: 'Duplicate bid not allowed',
+    spanish: 'Duplicate bid not allowed',
+  },
 } as const;
