@@ -28,10 +28,6 @@ export class CommonPermissionGuard
       context.getHandler(),
     );
 
-    const requiredModule = permissionInfo.module;
-
-    const requiredKey = permissionInfo.key;
-
     const request: Request = context.switchToHttp().getRequest();
     const user = request.user as UserTokenPayloadType;
 
@@ -39,10 +35,19 @@ export class CommonPermissionGuard
       return true;
     }
 
+    // If permission metadata is not present, allow access
+    if (!permissionInfo || !permissionInfo.module || !permissionInfo.key) {
+      return true;
+    }
+
     // If user or permissions are missing, deny access
     if (!user || !user.permissions) {
       throw new ForbiddenErrorHttp(LangKeys.AccessPermissionNotFound);
     }
+
+    const requiredModule = permissionInfo.module;
+
+    const requiredKey = permissionInfo.key;
 
     const hasPermission = user.permissions.some((permission) => {
       const scopeMatch = user.scope && user.scope === permission.scope;

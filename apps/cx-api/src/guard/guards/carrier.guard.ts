@@ -26,10 +26,6 @@ export class CarrierGuard extends AuthGuard('jwt') implements CanActivate {
       context.getHandler(),
     );
 
-    const requiredModule = permissionInfo.module;
-
-    const requiredKey = permissionInfo.key;
-
     const request: Request = context.switchToHttp().getRequest();
     const user = request.user as UserTokenPayloadType;
 
@@ -37,10 +33,22 @@ export class CarrierGuard extends AuthGuard('jwt') implements CanActivate {
       return true;
     }
 
+    if (user.scope != Primary_User_Types.carrier) {
+      throw new ForbiddenErrorHttp(LangKeys.AccessPermissionNotFound);
+    }
+    // If permission metadata is not present, allow access
+    if (!permissionInfo || !permissionInfo.module || !permissionInfo.key) {
+      return true;
+    }
+
     // If user or permissions are missing, deny access
     if (!user || !user.permissions) {
       throw new ForbiddenErrorHttp(LangKeys.AccessPermissionNotFound);
     }
+
+    const requiredModule = permissionInfo.module;
+
+    const requiredKey = permissionInfo.key;
 
     const hasPermission = user.permissions.some((permission) => {
       const scopeMatch = Permission_Scope_Names.carrier === permission.scope;
