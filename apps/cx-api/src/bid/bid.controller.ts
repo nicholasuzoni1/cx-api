@@ -3,11 +3,11 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Request,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { BidService } from './bid.service';
 import { CreateBidDto } from './dto/create-bid.dto';
@@ -22,10 +22,11 @@ import { BidsModuleKeys } from '@app/permission-management/permission-module-key
 import { UserTokenPayloadType } from '@app/permission-management';
 import { getAssociationId } from '@app/permission-management/get-association';
 import { responseWrapper } from '@app/shared-lib';
+import { UpdateBidResponseType } from './entities/update-bid.response';
 
 @ApiBearerAuth()
 @ApiTags('Bids')
-@Controller('bid')
+@Controller('bids')
 export class BidController {
   constructor(private readonly bidService: BidService) {}
 
@@ -69,9 +70,30 @@ export class BidController {
     return this.bidService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBidDto: UpdateBidDto) {
-    return this.bidService.update(+id, updateBidDto);
+  @Put()
+  @UseGuards(JwtAuthGuard, CarrierGuard)
+  @PermissionsDecorator({
+    module: Module_Names.Bids,
+    key: BidsModuleKeys.UPDATE_BID,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Bid updated',
+    type: UpdateBidResponseType,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async update(@Body() updateBidDto: UpdateBidDto) {
+    try {
+      const output = await this.bidService.update(updateBidDto);
+      return responseWrapper({
+        data: output,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Delete(':id')

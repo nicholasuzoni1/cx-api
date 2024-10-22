@@ -10,7 +10,6 @@ import {
   NotFoundErrorHttp,
 } from '@app/shared-lib/http-errors';
 import { LangKeys } from '@app/lang-lib/lang-keys';
-import { BidResponseEntity } from './entities/bid.entity.response';
 import { LoadEntity } from 'apps/cx-api/entities/load.entity';
 import { BidConverter } from './converters/bid';
 
@@ -56,7 +55,7 @@ export class BidService {
         },
       });
       if (!load) {
-        throw new AlreadyExistsErrorHttp(LangKeys.LoadNotFoundErrorKey);
+        throw new NotFoundErrorHttp(LangKeys.LoadNotFoundErrorKey);
       }
 
       let newBid = this.bidEntity.create();
@@ -65,15 +64,7 @@ export class BidService {
 
       const savedBid = await this.bidEntity.save(newBid);
 
-      const output = new BidResponseEntity();
-
-      output.id = savedBid.id;
-      output.price = savedBid.price;
-      output.carrierId = savedBid.carrier_id;
-      output.createdBy = savedBid.created_by;
-      output.createdAt = savedBid.created_at.toISOString();
-      output.updatedAt = savedBid.updated_at.toISOString();
-      output.deletedAt = savedBid.deleted_at?.toISOString();
+      const output = BidConverter.fromTable(savedBid);
 
       return output;
     } catch (error) {
@@ -85,15 +76,66 @@ export class BidService {
     return `This action returns all bid`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} bid`;
+  async findOne(id: number) {
+    try {
+      const bid = await this.bidEntity.findOne({
+        where: {
+          id: id,
+        },
+      });
+      if (!bid) {
+        throw new NotFoundErrorHttp(LangKeys.BidNotFoundErrorKey);
+      }
+
+      const output = BidConverter.fromTable(bid);
+
+      return output;
+    } catch (error) {
+      throw error;
+    }
   }
 
-  update(id: number, updateBidDto: UpdateBidDto) {
-    return `This action updates a #${id} bid`;
+  async update(input: UpdateBidDto) {
+    try {
+      const bid = await this.bidEntity.findOne({
+        where: {
+          id: input.id,
+        },
+      });
+      if (!bid) {
+        throw new NotFoundErrorHttp(LangKeys.BidNotFoundErrorKey);
+      }
+
+      const updatedBid = BidConverter.toUpdateInput(bid, input);
+
+      const savedBid = await this.bidEntity.save(updatedBid);
+
+      const output = BidConverter.fromTable(savedBid);
+
+      return output;
+    } catch (error) {
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} bid`;
+  async remove(id: number) {
+    try {
+      const bid = await this.bidEntity.findOne({
+        where: {
+          id: id,
+        },
+      });
+      if (!bid) {
+        throw new NotFoundErrorHttp(LangKeys.BidNotFoundErrorKey);
+      }
+
+      await this.bidEntity.softDelete(bid);
+
+      const output = {};
+
+      return output;
+    } catch (error) {
+      throw error;
+    }
   }
 }

@@ -24,4 +24,5 @@ export const LangKeys = {
   LoadNotFoundErrorKey: 'LoadNotFoundErrorKey',
   // Bid Error Keys
   DuplicateBidErrorKey: 'DuplicateBidErrorKey',
+  BidNotFoundErrorKey: 'BidNotFoundErrorKey',
 } as const;

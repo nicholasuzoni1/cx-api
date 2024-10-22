@@ -12,6 +12,10 @@ import {
 import { LangKeys } from '@app/lang-lib/lang-keys';
 import { LoadConverter } from './converters/load';
 import { SearchLoadsDto } from './dto/search-loads';
+import { Dimension_Unit_List } from '@app/load-managment/dimension-types';
+import { Vehicle_Type_NamedDescriptions } from '@app/load-managment/vehicle-types';
+import { Weight_Unit_List } from '@app/load-managment/weight-types';
+import { DataforLoadPostingResponseEntity } from './entities/data-for-load-posting.response';
 
 @Injectable()
 export class LoadService {
@@ -22,6 +26,19 @@ export class LoadService {
     private readonly loadEntity: Repository<LoadEntity>,
     private readonly dataSource: DataSource,
   ) {}
+
+  getDataforLoadPosting() {
+    try {
+      const output = new DataforLoadPostingResponseEntity();
+      output.dimensionUnits = Dimension_Unit_List as string[];
+      output.weightUnits = Weight_Unit_List as string[];
+      output.vehicleTypes = Vehicle_Type_NamedDescriptions;
+
+      return output;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async create(input: CreateLoadDto, additionalData: LoadAdditionalData) {
     try {

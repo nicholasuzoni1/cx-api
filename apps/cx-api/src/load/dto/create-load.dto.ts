@@ -56,11 +56,13 @@ export function IsNotPastDate(
       propertyName: propertyName,
       options: validationOptions,
       validator: {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         validate(value: any, _args: ValidationArguments) {
           if (!value) return true; // skip validation if value is not provided
           const now = new Date();
           return new Date(value) >= now;
         },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         defaultMessage(_args: ValidationArguments) {
           return `${property} must not be in the past.`;
         },
@@ -86,6 +88,7 @@ export function IsAfterDate(
           if (!value || !pickupDate) return true; // skip validation if any value is missing
           return new Date(value) > new Date(pickupDate);
         },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         defaultMessage(_args: ValidationArguments) {
           return `${propertyName} must be after ${pickupProperty}.`;
         },
@@ -111,6 +114,7 @@ export function IsMaxBudgetGreaterThanMinBudget(
           if (value === undefined || minBudget === undefined) return true; // skip validation if any value is missing
           return value >= minBudget; // maxBudget must be greater than or equal to minBudget
         },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         defaultMessage(_args: ValidationArguments) {
           return `Maximum budget must be greater than or equal to minimum budget.`;
         },
@@ -205,7 +209,7 @@ export class CreateLoadDto {
   @IsIn(Vehicle_Type_List)
   @ApiProperty({
     description: 'The vehicle tyoe',
-    example: Vehicle_Type_Names['Dry Van'],
+    example: Vehicle_Type_Names.dry_van,
   })
   vehicleType: Vehicle_Type;
 

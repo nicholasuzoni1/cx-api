@@ -29,11 +29,34 @@ import { CommonPermissionGuard } from '../guard/guards/common-permission.guard';
 import { getAssociationId } from '@app/permission-management/get-association';
 import { SearchLoadsDto } from './dto/search-loads';
 import { CarrierGuard } from '../guard/guards/carrier.guard';
+import { DataforLoadPostingResponseType } from './entities/data-for-load-posting.response';
 @ApiBearerAuth()
 @ApiTags('Loads')
 @Controller('loads')
 export class LoadController {
   constructor(private readonly loadService: LoadService) {}
+
+  @Get('/data-for-load-posting')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({
+    status: 201,
+    description: 'Data for Load posting',
+    type: DataforLoadPostingResponseType,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async getDataforLoadPosting() {
+    try {
+      const output = await this.loadService.getDataforLoadPosting();
+      return responseWrapper({
+        data: output,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
 
   @Post('/')
   @UseGuards(JwtAuthGuard, ShipperGuard)
@@ -128,7 +151,7 @@ export class LoadController {
   @ApiParam({ name: 'id', type: Number, description: 'id of load' })
   @ApiResponse({
     status: 200,
-    description: 'Role received.',
+    description: 'Load received.',
     type: GetLoadResponseType,
   })
   @ApiResponse({
@@ -185,7 +208,7 @@ export class LoadController {
   @ApiParam({ name: 'id', type: Number, description: 'id of load' })
   @ApiResponse({
     status: 200,
-    description: 'Role deleted.',
+    description: 'Load deleted.',
     type: DeleteLoadResponseType,
   })
   @ApiResponse({
