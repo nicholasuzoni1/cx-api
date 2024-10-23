@@ -38,9 +38,13 @@ import { BidModule } from './bid/bid.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DATABASE,
-      ssl: {
-        rejectUnauthorized: false,
-      },
+      ssl:
+      !!process.env.POSTGRES_SSL_DISABLED === true
+        ? false
+        : {
+            rejectUnauthorized:
+              process.env.POSTGRES_SSL_REJECT_UNAUTHORIZED === 'true',
+          },
       entities: [
         RoleEntity,
         UserEntity,
