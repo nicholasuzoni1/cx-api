@@ -1,6 +1,6 @@
 export enum OTP_TYPE_ENUM {
-  FORGOT_PASSWORD = 'FORGOT_PASSWORD',
-  RESET_PASSWORD = 'RESET_PASSWORD',
-  USER_VERIFY = 'USER_VERIFY',
-  PHONE_VERIFY = 'PHONE_VERIFY',
+  FORGOT_PASSWORD = 'forgot_password',
+  RESET_PASSWORD = 'reset_password',
+  USER_VERIFY = 'user_verify',
+  PHONE_VERIFY = 'phone_verify',
 }

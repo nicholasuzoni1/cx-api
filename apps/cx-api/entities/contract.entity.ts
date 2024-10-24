@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
-  OneToOne,
+  ManyToOne,
 } from 'typeorm';
 import { LoadEntity } from './load.entity';
 
@@ -23,7 +23,7 @@ export class ContractEntity {
   @Column()
   status: string;
 
-  @OneToOne(() => LoadEntity, (load) => load.contract)
+  @ManyToOne(() => LoadEntity, (load) => load.bids)
   load: LoadEntity;
 
   @CreateDateColumn({ type: 'timestamptz' })
