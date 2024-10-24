@@ -36,23 +36,6 @@ export class UsersService {
     private readonly dataSource: DataSource,
   ) {}
 
-  // async create(input: CreateUserDto, additionalData: CreateUserAdditionalData) {
-  //   try {
-  //     const data = CreateUserConverter.toGrpc(input, additionalData);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.createUser(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = CreateUserConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async create(input: CreateUserDto, additionalData: CreateUserAdditionalData) {
     let queryRunner: QueryRunner | null = null;
     try {
@@ -165,23 +148,6 @@ export class UsersService {
     }
   }
 
-  // async verify(input: VerifyCreatedUserDto) {
-  //   try {
-  //     const data = VerifyCreatedUserConverter.toGrpc(input);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.verifyCreatedUser(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = {};
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async verify(input: VerifyCreatedUserDto) {
     let queryRunner: QueryRunner | null = null;
     try {
@@ -237,23 +203,6 @@ export class UsersService {
     }
   }
 
-  // async update(input: UpdateUserDto, additionalData: UpdateUserAdditionalData) {
-  //   try {
-  //     const data = UpdateUserConverter.toGrpc(input, additionalData);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.updateUser(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = UpdateUserConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async update(input: UpdateUserDto, additionalData: UpdateUserAdditionalData) {
     try {
       const user = await this.userEntity.findOne({
@@ -305,25 +254,6 @@ export class UsersService {
     }
   }
 
-  // async get(id: number, associatedTo: number) {
-  //   try {
-  //     const res = await lastValueFrom(
-  //       this.authServiceClient.getUser({
-  //         id: id,
-  //         associatedTo: associatedTo,
-  //       }),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = CreateUserConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async get(id: number, associatedTo: number) {
     try {
       const user = await this.userEntity.findOne({
@@ -358,24 +288,6 @@ export class UsersService {
     }
   }
 
-  // async list(associatedTo: number) {
-  //   try {
-  //     const res = await lastValueFrom(
-  //       this.authServiceClient.listUser({
-  //         associatedTo: associatedTo,
-  //       }),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = ListUserConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async list(associatedTo: number) {
     try {
       const users = await this.userEntity.find({
@@ -408,25 +320,6 @@ export class UsersService {
       throw error;
     }
   }
-
-  // async delete(id: number, associatedTo: number) {
-  //   try {
-  //     const res = await lastValueFrom(
-  //       this.authServiceClient.deleteUser({
-  //         id: id,
-  //         associatedTo: associatedTo,
-  //       }),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = {};
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 
   async delete(id: number, associatedTo: number) {
     let queryRunner: QueryRunner | null = null;

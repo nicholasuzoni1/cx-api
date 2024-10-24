@@ -36,26 +36,6 @@ export class PermissionsService {
     private readonly dataSource: DataSource,
   ) {}
 
-  // async create(
-  //   input: CreatePermissionDto,
-  //   additionalData: CreatePermissionAdditionalData,
-  // ) {
-  //   try {
-  //     const data = CreatePermissionConverter.toGrpc(input, additionalData);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.createPermission(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = CreatePermissionConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async create(
     input: CreatePermissionDto,
     additionalData: CreatePermissionAdditionalData,
@@ -123,23 +103,6 @@ export class PermissionsService {
       throw error;
     }
   }
-
-  // async update(input: UpdatePermissionDto) {
-  //   try {
-  //     const data = UpdatePermissionConverter.toGrpc(input);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.updatePermission(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = UpdatePermissionConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 
   async update(input: UpdatePermissionDto) {
     let queryRunner: QueryRunner | null = null;
@@ -217,22 +180,6 @@ export class PermissionsService {
     }
   }
 
-  // async get(id: number) {
-  //   try {
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.getPermission({ id: id }),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = GetPermissionConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async get(id: number) {
     try {
       const permission = await this.permissionEntity.findOne({
@@ -260,32 +207,6 @@ export class PermissionsService {
       throw error;
     }
   }
-
-  // async list(scope?: string) {
-  //   try {
-  //     if (scope && !Permission_Scope_Names[scope]) {
-  //       const err: HttpErrorType = {
-  //         errorMessageKey: LangKeys.InvalideScopeValueErrorKey,
-  //         realError: '',
-  //       };
-  //       throw new BadRequestException(err);
-  //     }
-
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.listPermission({
-  //         scope: scope,
-  //       }),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = ListPermissionConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 
   async list(scope?: string) {
     try {
@@ -315,23 +236,6 @@ export class PermissionsService {
     }
   }
 
-  // async listModuleKeys() {
-  //   try {
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.listPermissionModuleKeys({}),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     // eslint-disable-next-line prettier/prettier
-  //     const output = ListPermissionModuleKeysConverter.from(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async listModuleKeys() {
     try {
       const permissionKeys = Object.keys(Permission_Module_Keys).reduce(
@@ -360,22 +264,6 @@ export class PermissionsService {
     }
   }
 
-  // async listModules() {
-  //   try {
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.listPermissionModules({}),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = res.data.modules ? res.data.modules : [];
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async listModules() {
     try {
       const output = Permission_Module_List as string[];
@@ -384,22 +272,6 @@ export class PermissionsService {
       throw error;
     }
   }
-
-  // async listScopes() {
-  //   try {
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.listPermissionScopes({}),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = res.data.scopes ? res.data.scopes : [];
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 
   async listScopes() {
     try {
@@ -410,22 +282,6 @@ export class PermissionsService {
       throw error;
     }
   }
-
-  // async delete(id: number) {
-  //   try {
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.deletePermission({
-  //         id: id,
-  //       }),
-  //     );
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     return {} as object;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 
   async delete(id: number) {
     let queryRunner: QueryRunner | null = null;

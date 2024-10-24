@@ -64,24 +64,7 @@ export class AuthService {
     private readonly otpEntity: Repository<OtpEntity>,
     private jwtService: JwtService,
     private readonly dataSource: DataSource,
-  ) {}
-
-  // async signup(input: SignupDto) {
-  //   try {
-  //     const data = SignupConverter.toGrpc(input);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.signup(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = SignupConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
+  ) { }
 
   async signup(input: SignupDto) {
     let queryRunner: QueryRunner | null = null;
@@ -173,23 +156,6 @@ export class AuthService {
     }
   }
 
-  // async verifyUser(input: VerifyUserDto) {
-  //   try {
-  //     const data = VerifyUserConverter.toGrpc(input);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.verifyUser(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = VerifyUserConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async verifyUser(input: VerifyUserDto) {
     let queryRunner: QueryRunner | null = null;
     try {
@@ -239,23 +205,6 @@ export class AuthService {
       throw error;
     }
   }
-
-  // async signin(input: SigninDto) {
-  //   try {
-  //     const data = SigninConverter.toGrpc(input);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.signin(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = SigninConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 
   async signin(input: SigninDto) {
     try {
@@ -376,23 +325,6 @@ export class AuthService {
     }
   }
 
-  // async forgotPassword(input: ForgotPasswordDto) {
-  //   try {
-  //     const data = ForgotPasswordConverter.toGrpc(input);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.forgotPassword(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = ForgotPasswordConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async forgotPassword(input: ForgotPasswordDto) {
     let queryRunner: QueryRunner | null = null;
     try {
@@ -465,23 +397,6 @@ export class AuthService {
       throw error;
     }
   }
-
-  // async verifyResetPasswordOtp(input: VerifyResetPasswordOtpDto) {
-  //   try {
-  //     const data = VerifyResetPasswordOtpConverter.toGrpc(input);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.verifyResetPasswordOtp(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = VerifyResetPasswordOtpConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 
   async verifyResetPasswordOtp(input: VerifyResetPasswordOtpDto) {
     let queryRunner: QueryRunner | null = null;
@@ -563,23 +478,6 @@ export class AuthService {
     }
   }
 
-  // async resetPassword(input: ResetPasswordDto) {
-  //   try {
-  //     const data = ResetPasswordConverter.toGrpc(input);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.resetPassword(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = ResetPasswordConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async resetPassword(input: ResetPasswordDto) {
     let queryRunner: QueryRunner | null = null;
     try {
@@ -632,23 +530,6 @@ export class AuthService {
       throw error;
     }
   }
-
-  // async resendForgotPasswordOtp(input: ResendForgotPasswordOtpDto) {
-  //   try {
-  //     const data = ResendForgotPasswordOtpConverter.toGrpc(input);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.resendForgotPasswordOtp(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = ResendForgotPasswordOtpConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 
   async resendForgotPasswordOtp(input: ResendForgotPasswordOtpDto) {
     let queryRunner: QueryRunner | null = null;
@@ -731,26 +612,6 @@ export class AuthService {
       throw error;
     }
   }
-
-  // async updatePassword(
-  //   input: UpdatePasswordDto,
-  //   addtionalData: UpdatePasswordAdditionalData,
-  // ) {
-  //   try {
-  //     const data = UpdatePasswordConverter.toGrpc(input, addtionalData);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.updatePassword(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = UpdatePasswordConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 
   async updatePassword(
     input: UpdatePasswordDto,
