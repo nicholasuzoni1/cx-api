@@ -48,6 +48,7 @@ import { ResendForgotPasswordOtpResponseEntity } from './entities/resend-forgot-
 import { UpdatePasswordResponseEntity } from './entities/update-password-response';
 import { OTP_TYPE_ENUM } from '@app/shared-lib/enums/otp-type';
 import { UpdatePasswordAdditionalData } from './additionals/update-password';
+import { MailClientService } from '../mail-client/mail-client.service';
 
 @Injectable()
 export class AuthService {
@@ -64,7 +65,8 @@ export class AuthService {
     private readonly otpEntity: Repository<OtpEntity>,
     private jwtService: JwtService,
     private readonly dataSource: DataSource,
-  ) { }
+    private readonly mailClientService: MailClientService,
+  ) {}
 
   async signup(input: SignupDto) {
     let queryRunner: QueryRunner | null = null;
@@ -140,6 +142,12 @@ export class AuthService {
       await queryRunner.manager.save(newOtp);
 
       // Todo: send account verification mail
+      await this.mailClientService.sendMail(
+        'muhammadhabib@techmatetech.com',
+        'Welcome to Our Platform',
+        'Thank you for joining!',
+        '<strong>Thank you for joining!</strong>',
+      );
       // Using hash and code
 
       await queryRunner.commitTransaction();
