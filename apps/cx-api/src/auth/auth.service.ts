@@ -66,7 +66,7 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly dataSource: DataSource,
     private readonly mailClientService: MailClientService,
-  ) { }
+  ) {}
 
   async signup(input: SignupDto) {
     let queryRunner: QueryRunner | null = null;
@@ -144,9 +144,8 @@ export class AuthService {
       // Todo: send account verification mail
       // Using hash and code
       // Create a verification link with hash and code
-      const verificationLink = `${process.env.FRONTEND_HOST}/verify-user?hash=${encodeURIComponent(
-        hash,
-      )}&code=${otpCode}`;
+      const verificationLink = `${process.env.FRONTEND_HOST}/auth/verify-user?hash=${hash}&code=${otpCode}`;
+      // console.log('Verification_Link', verificationLink);
 
       // Send verification email with the link
       await this.mailClientService.sendMail(
@@ -395,6 +394,13 @@ export class AuthService {
 
       // Todo: send forgot password mail
       // Using hash and code
+      console.log('Forgot_Password_Mail_Content', userAccount.email, otpCode);
+      await this.mailClientService.sendMail(
+        userAccount.email,
+        'Password Reset OTP',
+        'Here is your OTP for password reset',
+        `<strong>Your OTP for password reset is:</strong> ${otpCode}`,
+      );
 
       await queryRunner.commitTransaction();
       await queryRunner.release();
