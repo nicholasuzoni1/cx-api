@@ -33,6 +33,7 @@ export class MailClientService {
       console.log('Email sent');
     } catch (error) {
       console.error('Error sending email:', error);
+      throw error;
     }
   }
 }

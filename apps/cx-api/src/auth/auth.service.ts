@@ -66,7 +66,7 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly dataSource: DataSource,
     private readonly mailClientService: MailClientService,
-  ) {}
+  ) { }
 
   async signup(input: SignupDto) {
     let queryRunner: QueryRunner | null = null;
@@ -142,13 +142,19 @@ export class AuthService {
       await queryRunner.manager.save(newOtp);
 
       // Todo: send account verification mail
-      await this.mailClientService.sendMail(
-        'muhammadhabib@techmatetech.com',
-        'Welcome to Our Platform',
-        'Thank you for joining!',
-        '<strong>Thank you for joining!</strong>',
-      );
       // Using hash and code
+      // Create a verification link with hash and code
+      const verificationLink = `${process.env.FRONTEND_HOST}/verify-user?hash=${encodeURIComponent(
+        hash,
+      )}&code=${otpCode}`;
+
+      // Send verification email with the link
+      await this.mailClientService.sendMail(
+        userAccount.email,
+        'Verify Your Account',
+        'Please verify your account',
+        `<strong>Please verify your account by clicking the following link:</strong><br /><a href="${verificationLink}">Verify Account</a>`,
+      );
 
       await queryRunner.commitTransaction();
       await queryRunner.release();
