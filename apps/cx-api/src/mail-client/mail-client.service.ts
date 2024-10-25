@@ -7,8 +7,7 @@ import { ConfigService } from '@nestjs/config';
 export class MailClientService {
   constructor(private readonly configService: ConfigService) {
     const sendGridApiKey = this.configService.get<string>('SEND_GRID_API_KEY');
-
-    SendGridMail.setApiKey(sendGridApiKey); // Use API key from config
+    SendGridMail.setApiKey(sendGridApiKey);
   }
 
   async sendMail(
@@ -17,13 +16,12 @@ export class MailClientService {
     text: string,
     html: string,
   ): Promise<void> {
-    // console.log(
-    //   'SEND_GRID_API_KEY',
-    //   this.configService.get<string>('SEND_GRID_API_KEY'),
-    // );
     const msg = {
       to,
-      from: 'habibchk123@mail.com', // verified sender address
+      from: {
+        email: 'no-reply@carrierxpress.io',
+        name: 'Carrier Xpress',
+      },
       subject,
       text,
       html,
@@ -33,7 +31,6 @@ export class MailClientService {
       console.log('Email sent');
     } catch (error) {
       console.error('Error sending email:', error);
-      throw error;
     }
   }
 }
