@@ -16,6 +16,7 @@ import { Dimension_Unit_List } from '@app/load-managment/dimension-types';
 import { Vehicle_Type_NamedDescriptions } from '@app/load-managment/vehicle-types';
 import { Weight_Unit_List } from '@app/load-managment/weight-types';
 import { DataforLoadPostingResponseEntity } from './entities/data-for-load-posting.response';
+import { Contract_Names } from '@app/load-managment/contract-types';
 
 @Injectable()
 export class LoadService {
@@ -25,7 +26,7 @@ export class LoadService {
     @InjectRepository(LoadEntity)
     private readonly loadEntity: Repository<LoadEntity>,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   getDataforLoadPosting() {
     try {
@@ -98,12 +99,12 @@ export class LoadService {
 
       // Build the base query for counting total records
       const countQuery = this.loadEntity.createQueryBuilder('loads');
-
       countQuery.andWhere('loads.is_private = :isPrivate', {
         isPrivate: false,
       });
-      // Filter for loads without a contract
-      countQuery.andWhere('loads.contract IS NULL');
+      countQuery.andWhere('loads.is_contract_made = :isContractMade', {
+        isContractMade: false,
+      });
 
       // Apply filters to the count query
       // if (destination) {
@@ -122,6 +123,10 @@ export class LoadService {
       //     { lat, lng, radius },
       //   );
       // }
+
+      const [query, parameters] = countQuery.getQueryAndParameters();
+      console.log('SQL Query:', query);
+      console.log('Parameters:', parameters);
 
       // Get total count of records matching the filters and location
       const totalCount = await countQuery.getCount();

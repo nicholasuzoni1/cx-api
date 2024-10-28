@@ -48,6 +48,7 @@ import { ResendForgotPasswordOtpResponseEntity } from './entities/resend-forgot-
 import { UpdatePasswordResponseEntity } from './entities/update-password-response';
 import { OTP_TYPE_ENUM } from '@app/shared-lib/enums/otp-type';
 import { UpdatePasswordAdditionalData } from './additionals/update-password';
+import { MailClientService } from '../mail-client/mail-client.service';
 
 @Injectable()
 export class AuthService {
@@ -64,6 +65,7 @@ export class AuthService {
     private readonly otpEntity: Repository<OtpEntity>,
     private jwtService: JwtService,
     private readonly dataSource: DataSource,
+    private readonly mailClientService: MailClientService,
   ) {}
 
   async signup(input: SignupDto) {
@@ -141,6 +143,17 @@ export class AuthService {
 
       // Todo: send account verification mail
       // Using hash and code
+      // Create a verification link with hash and code
+      const verificationLink = `${process.env.FRONTEND_HOST}/auth/verify-user?hash=${hash}&code=${otpCode}`;
+      // console.log('Verification_Link', verificationLink);
+
+      // Send verification email with the link
+      await this.mailClientService.sendMail(
+        userAccount.email,
+        'Verify Your Account',
+        'Please verify your account',
+        `<strong>Please verify your account by clicking the following link:</strong><br /><a href="${verificationLink}">Verify Account</a>`,
+      );
 
       await queryRunner.commitTransaction();
       await queryRunner.release();
@@ -381,6 +394,13 @@ export class AuthService {
 
       // Todo: send forgot password mail
       // Using hash and code
+      console.log('Forgot_Password_Mail_Content', userAccount.email, otpCode);
+      await this.mailClientService.sendMail(
+        userAccount.email,
+        'Password Reset OTP',
+        'Here is your OTP for password reset',
+        `<strong>Your OTP for password reset is:</strong> ${otpCode}`,
+      );
 
       await queryRunner.commitTransaction();
       await queryRunner.release();
