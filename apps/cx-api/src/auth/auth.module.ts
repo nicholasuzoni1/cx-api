@@ -11,6 +11,7 @@ import { PermissionEntity } from 'apps/cx-api/entities/permission.entity';
 import { OtpEntity } from 'apps/cx-api/entities/otp.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { GuardModule } from '../guard/guard.module';
+import { MailClientModule } from '../mail-client/mail-client.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { GuardModule } from '../guard/guard.module';
       inject: [ConfigService],
     }),
     GuardModule,
+    MailClientModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],

@@ -6,8 +6,6 @@ import {
   DeleteDateColumn,
   UpdateDateColumn,
   OneToMany,
-  OneToOne,
-  JoinColumn,
 } from 'typeorm';
 import { BidEntity } from './bid.entity';
 import { ContractEntity } from './contract.entity';
@@ -74,6 +72,11 @@ export class LoadEntity {
   })
   is_private: boolean;
 
+  @Column({
+    default: false,
+  })
+  is_contract_made: boolean;
+
   @Column()
   created_by: number;
 
@@ -83,11 +86,8 @@ export class LoadEntity {
   @OneToMany(() => BidEntity, (bid) => bid.load)
   bids: BidEntity[];
 
-  @OneToOne(() => ContractEntity, (contract) => contract.load, {
-    cascade: true, // Optional: cascades operations like save and remove
-  })
-  @JoinColumn() // This specifies that this entity owns the relationship
-  contract: ContractEntity;
+  @OneToMany(() => ContractEntity, (contract) => contract.load)
+  contracts: ContractEntity[];
 
   @OneToMany(() => LoadStatusEntity, (bid) => bid.load)
   statuses: LoadStatusEntity[];

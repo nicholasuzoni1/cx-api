@@ -209,7 +209,7 @@ export class CreateLoadDto {
   @IsIn(Vehicle_Type_List)
   @ApiProperty({
     description: 'The vehicle tyoe',
-    example: Vehicle_Type_Names.dry_van,
+    example: Vehicle_Type_Names.DRY_VAN,
   })
   vehicleType: Vehicle_Type;
 
