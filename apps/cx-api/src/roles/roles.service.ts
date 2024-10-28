@@ -26,23 +26,6 @@ export class RolesService {
     private readonly dataSource: DataSource,
   ) {}
 
-  // async create(input: CreateRoleDto, additionalData: CreateRoleAdditionalData) {
-  //   try {
-  //     const data = CreateRoleConverter.toGrpc(input, additionalData);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.createRole(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = CreateRoleConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async create(input: CreateRoleDto, additionalData: CreateRoleAdditionalData) {
     try {
       const user = await this.userEntity.findOne({
@@ -101,23 +84,6 @@ export class RolesService {
       throw error;
     }
   }
-
-  // async update(input: UpdateRoleDto, additionalData: UpdateRoleAdditionalData) {
-  //   try {
-  //     const data = UpdateRoleConverter.toGrpc(input, additionalData);
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.updateRole(data),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = UpdateRoleConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 
   async update(input: UpdateRoleDto, additionalData: UpdateRoleAdditionalData) {
     let queryRunner: QueryRunner | null = null;
@@ -204,25 +170,6 @@ export class RolesService {
     }
   }
 
-  // async get(id: number, associatedTo: number) {
-  //   try {
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.getRole({
-  //         id: id,
-  //         associatedTo: associatedTo,
-  //       }),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = GetRoleConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async get(id: number, associatedTo: number) {
     try {
       const role = await this.roleEntity.findOne({
@@ -251,24 +198,6 @@ export class RolesService {
     }
   }
 
-  // async list(associatedTo: number) {
-  //   try {
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.listRole({
-  //         associatedTo: associatedTo,
-  //       }),
-  //     );
-
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     const output = ListRoleConverter.fromGrpc(res.data);
-  //     return output;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async list(associatedTo: number) {
     try {
       const roles = await this.roleEntity.find({
@@ -295,23 +224,6 @@ export class RolesService {
       throw error;
     }
   }
-
-  // async delete(id: number, associatedTo: number) {
-  //   try {
-  //     const res = await lastValueFrom(
-  //       await this.authServiceClient.deleteRole({
-  //         id: id,
-  //         associatedTo: associatedTo,
-  //       }),
-  //     );
-  //     if (res.error) {
-  //       throw grpcErrorConverter(res.error as any);
-  //     }
-  //     return {} as object;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 
   async delete(id: number, associatedTo: number) {
     let queryRunner: QueryRunner | null = null;
