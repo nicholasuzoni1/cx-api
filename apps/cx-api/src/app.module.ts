@@ -40,12 +40,12 @@ import { MailClientModule } from './mail-client/mail-client.module';
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DATABASE,
       ssl:
-      !!process.env.POSTGRES_SSL_DISABLED === true
-        ? false
-        : {
-            rejectUnauthorized:
-              process.env.POSTGRES_SSL_REJECT_UNAUTHORIZED === 'true',
-          },
+        !!process.env.POSTGRES_SSL_DISABLED === true
+          ? false
+          : {
+              rejectUnauthorized:
+                process.env.POSTGRES_SSL_REJECT_UNAUTHORIZED === 'true',
+            },
       entities: [
         RoleEntity,
         UserEntity,

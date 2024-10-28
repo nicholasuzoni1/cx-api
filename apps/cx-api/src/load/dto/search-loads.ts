@@ -6,6 +6,10 @@ export class SearchLoadFilters {
     lat: number;
     lng: number;
   };
+  destinationLocation: {
+    lat: number;
+    lng: number;
+  };
   radius: number = 50;
 }
 
@@ -24,5 +28,8 @@ export class SearchLoadsDto {
   })
   pageNumber: number = 1;
 
+  @ApiProperty({
+    description: 'filters',
+  })
   filters: SearchLoadFilters;
 }

@@ -72,10 +72,6 @@ export class BidService {
     }
   }
 
-  findAll() {
-    return `This action returns all bid`;
-  }
-
   async findOne(id: number) {
     try {
       const bid = await this.bidEntity.findOne({

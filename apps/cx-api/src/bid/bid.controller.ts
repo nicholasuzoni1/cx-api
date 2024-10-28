@@ -22,7 +22,10 @@ import { BidsModuleKeys } from '@app/permission-management/permission-module-key
 import { UserTokenPayloadType } from '@app/permission-management';
 import { getAssociationId } from '@app/permission-management/get-association';
 import { responseWrapper } from '@app/shared-lib';
+import { CommonPermissionGuard } from '../guard/guards/common-permission.guard';
+import { GetBidResponseType } from './entities/get-bid.response';
 import { UpdateBidResponseType } from './entities/update-bid.response';
+import { DeleteBidResponseType } from './entities/delete-bid.response';
 
 @ApiBearerAuth()
 @ApiTags('Bids')
@@ -60,14 +63,30 @@ export class BidController {
     }
   }
 
-  @Get()
-  findAll() {
-    return this.bidService.findAll();
-  }
-
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bidService.findOne(+id);
+  @UseGuards(JwtAuthGuard, CommonPermissionGuard)
+  @PermissionsDecorator({
+    module: Module_Names.Bids,
+    key: BidsModuleKeys.VIEW_BID,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Bid received.',
+    type: GetBidResponseType,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async findOne(@Param('id') id: number) {
+    try {
+      const output = await this.bidService.findOne(id);
+      return responseWrapper({
+        data: output,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Put()
@@ -97,7 +116,28 @@ export class BidController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.bidService.remove(+id);
+  @UseGuards(JwtAuthGuard, CarrierGuard)
+  @PermissionsDecorator({
+    module: Module_Names.Bids,
+    key: BidsModuleKeys.DELETE_BID,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Bid deleted',
+    type: DeleteBidResponseType,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async remove(@Param('id') id: number) {
+    try {
+      const output = await this.bidService.remove(id);
+      return responseWrapper({
+        data: output,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 }
