@@ -119,7 +119,7 @@ export class BidController {
   @UseGuards(JwtAuthGuard, CarrierGuard)
   @PermissionsDecorator({
     module: Module_Names.Bids,
-    key: BidsModuleKeys.UPDATE_BID,
+    key: BidsModuleKeys.DELETE_BID,
   })
   @ApiResponse({
     status: 201,
