@@ -20,6 +20,7 @@ import { LoadModule } from './load/load.module';
 import { DefaultController } from './default.controller'; // Import your controller
 
 import { BidModule } from './bid/bid.module';
+import { MailClientModule } from './mail-client/mail-client.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -66,6 +67,7 @@ import { BidModule } from './bid/bid.module';
     GuardModule,
     LoadModule,
     BidModule,
+    MailClientModule,
   ],
   controllers: [DefaultController],
 })
