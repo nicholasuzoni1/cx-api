@@ -76,7 +76,7 @@ export class UsersService {
 
       const newUser = this.userEntity.create({
         name: input.name,
-        contact_no: input.contactNo,
+        // contact_no: input.contactNo,
         email: input.email,
         password: password,
         user_type: All_User_Types.subuser,
@@ -127,7 +127,7 @@ export class UsersService {
 
       output.id = savedUser.id;
       output.name = savedUser.name;
-      output.contactNo = savedUser.contact_no;
+      // output.contactNo = savedUser.contact_no;
       output.email = savedUser.email;
       output.userType = savedUser.user_type;
       output.associatedTo = savedUser.associated_to;
@@ -217,7 +217,7 @@ export class UsersService {
       }
 
       if (input.name) user.name = input.name;
-      if (input.contactNo) user.contact_no = input.contactNo;
+      // if (input.contactNo) user.contact_no = input.contactNo;
       if (input.roleId) {
         const role = this.roleEntity.findOne({
           where: {
@@ -237,7 +237,7 @@ export class UsersService {
 
       output.id = user.id;
       output.name = user.name;
-      output.contactNo = user.contact_no;
+      // output.contactNo = user.contact_no;
       output.email = user.email;
       output.userType = user.user_type;
       output.associatedTo = user.associated_to;
@@ -271,7 +271,7 @@ export class UsersService {
 
       output.id = user.id;
       output.name = user.name;
-      output.contactNo = user.contact_no;
+      // output.contactNo = user.contact_no;
       output.email = user.email;
       output.userType = user.user_type;
       output.associatedTo = user.associated_to;
@@ -301,7 +301,7 @@ export class UsersService {
 
         _user.id = u.id;
         _user.name = u.name;
-        _user.contactNo = u.contact_no;
+        // _user.contactNo = u.contact_no;
         _user.email = u.email;
         _user.userType = u.user_type;
         _user.associatedTo = u.associated_to;

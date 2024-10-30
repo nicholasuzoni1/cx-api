@@ -1,7 +1,7 @@
 import { Register_User_List } from '@app/permission-management/users';
-import { IsValidContactNo } from '@app/shared-lib/decorators/contact-no-validator';
+// import { IsValidContactNo } from '@app/shared-lib/decorators/contact-no-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsIn, IsNotEmpty, MinLength } from 'class-validator';
+import { IsEmail, IsIn, IsNotEmpty, Matches, MinLength } from 'class-validator';
 export class SignupDto {
   @IsNotEmpty()
   @ApiProperty({
@@ -18,7 +18,11 @@ export class SignupDto {
   email: string;
 
   @IsNotEmpty()
-  @MinLength(8)
+  @MinLength(6)
+  @Matches(/^(?=.*[0-9])(?=.*[!@#$%^&*()\-_=+<>?,.]).{6,}$/, {
+    message:
+      'Password must contain at least one numeric and one special character',
+  })
   @ApiProperty({
     description: 'The password of user',
     example: '123456S$',
@@ -33,11 +37,11 @@ export class SignupDto {
   })
   userType: string;
 
-  @IsNotEmpty()
-  @IsValidContactNo()
-  @ApiProperty({
-    description: 'The contactNo of user',
-    example: '+923401001000',
-  })
-  contactNo: string;
+  // @IsNotEmpty()
+  // @IsValidContactNo()
+  // @ApiProperty({
+  //   description: 'The contactNo of user',
+  //   example: '+923401001000',
+  // })
+  // contactNo: string;
 }

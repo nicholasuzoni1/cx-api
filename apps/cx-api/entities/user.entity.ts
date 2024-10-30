@@ -21,10 +21,10 @@ export class UserEntity {
   @Column()
   password: string;
 
-  @Column({
-    default: '',
-  })
-  contact_no: string;
+  // @Column({
+  //   default: '',
+  // })
+  // contact_no: string;
 
   @Column({
     default: '',
