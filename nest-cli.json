@@ -20,6 +20,10 @@
       "entryFile": "main",
       "sourceRoot": "apps/cx-api/src",
       "compilerOptions": {
+        "assets": [
+          "**/*.proto"
+        ],
+        "watchAssets": true,
         "tsConfigPath": "apps/cx-api/tsconfig.app.json"
       }
     },
