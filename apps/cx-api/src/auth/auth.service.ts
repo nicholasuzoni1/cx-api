@@ -50,6 +50,7 @@ import { OTP_TYPE_ENUM } from '@app/shared-lib/enums/otp-type';
 import { UpdatePasswordAdditionalData } from './additionals/update-password';
 import { MailClientService } from '../mail-client/mail-client.service';
 import { ProfileEntity } from 'apps/cx-api/entities/profile.entity';
+import { compileTemplate } from '@app/shared-lib/mail-template-utility';
 
 @Injectable()
 export class AuthService {
@@ -174,12 +175,15 @@ export class AuthService {
       const verificationLink = `${process.env.FRONTEND_HOST}/auth/verify-user?hash=${hash}&code=${otpCode}`;
       // console.log('Verification_Link', verificationLink);
 
+      const compiledHtml = compileTemplate('welcome-verification', {
+        verificationLink: verificationLink,
+      });
+
       // Send verification email with the link
       await this.mailClientService.sendMail(
         userAccount.email,
         'Verify Your Account',
-        'Please verify your account',
-        `<strong>Please verify your account by clicking the following link:</strong><br /><a href="${verificationLink}">Verify Account</a>`,
+        compiledHtml,
       );
 
       await queryRunner.commitTransaction();
@@ -421,12 +425,16 @@ export class AuthService {
 
       // Todo: send forgot password mail
       // Using hash and code
-      console.log('Forgot_Password_Mail_Content', userAccount.email, otpCode);
+      // console.log('Forgot_Password_Mail_Content', userAccount.email, otpCode);
+
+      const compiledHtml = compileTemplate('forgot-password', {
+        otp: newOtp.code,
+      });
+
       await this.mailClientService.sendMail(
         userAccount.email,
         'Password Reset OTP',
-        'Here is your OTP for password reset',
-        `<strong>Your OTP for password reset is:</strong> ${otpCode}`,
+        compiledHtml,
       );
 
       await queryRunner.commitTransaction();
@@ -643,6 +651,16 @@ export class AuthService {
 
       // Todo: send forgot password mail
       // Using hash and code
+
+      const compiledHtml = compileTemplate('forgot-password', {
+        otp: newOtp.code,
+      });
+
+      await this.mailClientService.sendMail(
+        userAccount.email,
+        'Password Reset OTP',
+        compiledHtml,
+      );
 
       await queryRunner.commitTransaction();
       await queryRunner.release();
