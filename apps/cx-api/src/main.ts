@@ -91,7 +91,7 @@ async function bootstrap() {
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders:
-      'X-Requested-With, X-HTTP-Method-Override, Observe, Content-Type, Accept, Authorization',
+      'X-Requested-With, X-HTTP-Method-Override, Observe, Content-Type, Accept, Authorization, lang',
     credentials: true,
   });
 

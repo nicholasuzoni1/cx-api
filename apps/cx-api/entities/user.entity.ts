@@ -5,7 +5,9 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  OneToOne,
 } from 'typeorm';
+import { ProfileEntity } from './profile.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -50,6 +52,9 @@ export class UserEntity {
     default: null,
   })
   created_by: number | null;
+
+  @OneToOne(() => ProfileEntity, (profile) => profile.user)
+  profile: ProfileEntity;
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;
