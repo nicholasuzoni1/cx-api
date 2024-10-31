@@ -44,8 +44,8 @@ export class DefaultController {
     @Body() body: { to: string; subject: string; text: string; html: string },
   ) {
     try {
-      const { to, subject, text, html } = body;
-      await this.mailClientService.sendMail(to, subject, text, html);
+      const { to, subject, html } = body;
+      await this.mailClientService.sendMail(to, subject, html);
       return { message: 'Email sent successfully!' };
     } catch (error) {
       console.log('Mail Error ==>', error);
@@ -62,12 +62,12 @@ export class DefaultController {
     @Body() body: { to: string; subject: string; text: string; html: string },
   ) {
     try {
-      const { to, subject, text } = body;
+      const { to, subject } = body;
       const compiledHtml = compileTemplate('send-mail', {
         email: to,
       });
       console.log('Compiled Html', compiledHtml);
-      await this.mailClientService.sendMail(to, subject, text, compiledHtml);
+      await this.mailClientService.sendMail(to, subject, compiledHtml);
       return { message: 'Email sent successfully!' };
     } catch (error) {
       console.log('Mail Error ==>', error);

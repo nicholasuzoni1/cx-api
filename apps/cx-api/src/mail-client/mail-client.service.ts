@@ -10,12 +10,7 @@ export class MailClientService {
     SendGridMail.setApiKey(sendGridApiKey);
   }
 
-  async sendMail(
-    to: string,
-    subject: string,
-    text: string,
-    html: string,
-  ): Promise<void> {
+  async sendMail(to: string, subject: string, html: string): Promise<void> {
     const msg = {
       to,
       from: {
@@ -23,7 +18,6 @@ export class MailClientService {
         name: 'Carrier Xpress',
       },
       subject,
-      text,
       html,
     };
     try {
