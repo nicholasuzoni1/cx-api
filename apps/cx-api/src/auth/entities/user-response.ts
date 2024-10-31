@@ -18,11 +18,6 @@ export class UserResponseEntity {
   email: string;
 
   @ApiProperty({
-    description: 'Contact number of user',
-  })
-  contactNo: string;
-
-  @ApiProperty({
     description: 'User type of user',
   })
   userType: string;

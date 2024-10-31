@@ -99,7 +99,6 @@ export class AuthService {
       if (!userAccount) {
         const newUser = this.userEntity.create({
           name: input.name,
-          // contact_no: input.contactNo,
           email: input.email,
           password: input.password,
           user_type: input.userType,
@@ -334,7 +333,6 @@ export class AuthService {
       const _user = new UserResponseEntity();
       _user.id = user.id;
       _user.name = user.name;
-      // _user.contactNo = user.contact_no;
       _user.email = user.email;
       _user.userType = user.user_type;
       _user.associatedTo = user.associated_to;
