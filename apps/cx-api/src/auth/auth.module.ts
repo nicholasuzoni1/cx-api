@@ -12,6 +12,7 @@ import { OtpEntity } from 'apps/cx-api/entities/otp.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { GuardModule } from '../guard/guard.module';
 import { MailClientModule } from '../mail-client/mail-client.module';
+import { ProfileEntity } from 'apps/cx-api/entities/profile.entity';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MailClientModule } from '../mail-client/mail-client.module';
       UserSessionEntity,
       PermissionEntity,
       OtpEntity,
+      ProfileEntity,
     ]),
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({

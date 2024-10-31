@@ -49,6 +49,7 @@ import { UpdatePasswordResponseEntity } from './entities/update-password-respons
 import { OTP_TYPE_ENUM } from '@app/shared-lib/enums/otp-type';
 import { UpdatePasswordAdditionalData } from './additionals/update-password';
 import { MailClientService } from '../mail-client/mail-client.service';
+import { ProfileEntity } from 'apps/cx-api/entities/profile.entity';
 
 @Injectable()
 export class AuthService {
@@ -63,6 +64,8 @@ export class AuthService {
     private readonly permissionEntity: Repository<PermissionEntity>,
     @InjectRepository(OtpEntity)
     private readonly otpEntity: Repository<OtpEntity>,
+    @InjectRepository(ProfileEntity)
+    private readonly profileEntity: Repository<ProfileEntity>,
     private jwtService: JwtService,
     private readonly dataSource: DataSource,
     private readonly mailClientService: MailClientService,
@@ -87,14 +90,12 @@ export class AuthService {
         throw new AlreadyExistsErrorHttp(LangKeys.AccountAlreadyExistsKey);
       }
 
-      if (!userAccount) {
-        if (input.password) {
-          const salt = await bcrypt.genSalt(SALT_ROUND);
-          // now we set user password to hashed password
-          const newPassword = await bcrypt.hash(input.password, salt);
-          input.password = newPassword;
-        }
+      const salt = await bcrypt.genSalt(SALT_ROUND);
+      // now we set user password to hashed password
+      const newPassword = await bcrypt.hash(input.password, salt);
+      input.password = newPassword;
 
+      if (!userAccount) {
         const newUser = this.userEntity.create({
           name: input.name,
           // contact_no: input.contactNo,
@@ -104,11 +105,37 @@ export class AuthService {
         });
 
         userAccount = await queryRunner.manager.save(newUser);
+
+        const profile = this.profileEntity.create({
+          company_name: input.companyName,
+          user: userAccount, // Associate the user with the profile
+        });
+
+        // Save the profile with the user association
+        await queryRunner.manager.save(profile);
       } else if (userAccount && !userAccount.is_verified) {
         await queryRunner.manager.softDelete(OtpEntity, {
           user_id: userAccount.id,
           type: OTP_TYPE_ENUM.USER_VERIFY,
         });
+
+        await queryRunner.manager.update(
+          UserEntity,
+          {
+            id: userAccount.id,
+          },
+          {
+            name: input.name,
+            user_type: input.userType,
+            password: input.password,
+          },
+        );
+
+        await queryRunner.manager.update(
+          ProfileEntity,
+          { user: { id: userAccount.id } }, // Access profile via user relationship
+          { company_name: input.companyName },
+        );
       }
 
       // use email as hash for test mode

@@ -37,6 +37,13 @@ export class SignupDto {
   })
   userType: string;
 
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'The company name',
+    example: 'xyz company',
+  })
+  companyName: string;
+
   // @IsNotEmpty()
   // @IsValidContactNo()
   // @ApiProperty({

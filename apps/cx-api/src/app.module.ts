@@ -21,6 +21,7 @@ import { DefaultController } from './default.controller'; // Import your control
 
 import { BidModule } from './bid/bid.module';
 import { MailClientModule } from './mail-client/mail-client.module';
+import { ProfileEntity } from '../entities/profile.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -49,6 +50,7 @@ import { MailClientModule } from './mail-client/mail-client.module';
       entities: [
         RoleEntity,
         UserEntity,
+        ProfileEntity,
         UserSessionEntity,
         PermissionEntity,
         OtpEntity,
