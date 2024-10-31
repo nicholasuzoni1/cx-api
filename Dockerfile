@@ -26,6 +26,7 @@ WORKDIR /usr/src/app
 
 # Copy only the production files from the build stage
 COPY --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/mail-templates ./mail-templates
 COPY --from=build /usr/src/app/package*.json ./
 
 # Install production dependencies
