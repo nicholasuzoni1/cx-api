@@ -1,5 +1,4 @@
 import { Register_User_List } from '@app/permission-management/users';
-// import { IsValidContactNo } from '@app/shared-lib/decorators/contact-no-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsIn, IsNotEmpty, Matches, MinLength } from 'class-validator';
 export class SignupDto {
@@ -43,12 +42,4 @@ export class SignupDto {
     example: 'xyz company',
   })
   companyName: string;
-
-  // @IsNotEmpty()
-  // @IsValidContactNo()
-  // @ApiProperty({
-  //   description: 'The contactNo of user',
-  //   example: '+923401001000',
-  // })
-  // contactNo: string;
 }
