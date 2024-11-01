@@ -1,6 +1,6 @@
 import { Register_User_List } from '@app/permission-management/users';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsIn, IsNotEmpty, Matches, MinLength } from 'class-validator';
+import { IsEmail, IsIn, IsNotEmpty, Matches } from 'class-validator';
 export class SignupDto {
   @IsNotEmpty()
   @ApiProperty({
@@ -17,10 +17,9 @@ export class SignupDto {
   email: string;
 
   @IsNotEmpty()
-  @MinLength(6)
   @Matches(/^(?=.*[0-9])(?=.*[!@#$%^&*()\-_=+<>?,.]).{6,}$/, {
     message:
-      'Password must contain at least one numeric and one special character',
+      'Password must be at least 6 characters long and contain at least one numeric and one special character',
   })
   @ApiProperty({
     description: 'The password of user',
