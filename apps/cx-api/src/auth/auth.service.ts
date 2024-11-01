@@ -176,6 +176,7 @@ export class AuthService {
 
       const compiledHtml = compileTemplate('welcome-verification', {
         verificationLink: verificationLink,
+        privacyPolicyLink: process.env.FRONTEND_HOST + '/privacy-policy',
       });
 
       // Send verification email with the link
@@ -427,6 +428,7 @@ export class AuthService {
 
       const compiledHtml = compileTemplate('forgot-password', {
         otp: newOtp.code,
+        privacyPolicyLink: process.env.FRONTEND_HOST + '/privacy-policy',
       });
 
       await this.mailClientService.sendMail(
@@ -652,6 +654,7 @@ export class AuthService {
 
       const compiledHtml = compileTemplate('forgot-password', {
         otp: newOtp.code,
+        privacyPolicyLink: process.env.FRONTEND_HOST + '/privacy-policy',
       });
 
       await this.mailClientService.sendMail(
