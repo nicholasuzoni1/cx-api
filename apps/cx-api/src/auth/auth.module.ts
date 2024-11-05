@@ -13,6 +13,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { GuardModule } from '../guard/guard.module';
 import { MailClientModule } from '../mail-client/mail-client.module';
 import { ProfileEntity } from 'apps/cx-api/entities/profile.entity';
+import { PaymentModule } from '../payment/payment.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ProfileEntity } from 'apps/cx-api/entities/profile.entity';
     }),
     GuardModule,
     MailClientModule,
+    PaymentModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],

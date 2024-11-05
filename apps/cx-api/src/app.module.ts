@@ -22,6 +22,7 @@ import { DefaultController } from './default.controller'; // Import your control
 import { BidModule } from './bid/bid.module';
 import { MailClientModule } from './mail-client/mail-client.module';
 import { ProfileEntity } from '../entities/profile.entity';
+import { PaymentModule } from './payment/payment.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -70,6 +71,7 @@ import { ProfileEntity } from '../entities/profile.entity';
     LoadModule,
     BidModule,
     MailClientModule,
+    PaymentModule,
   ],
   controllers: [DefaultController],
 })

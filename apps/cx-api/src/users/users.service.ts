@@ -22,6 +22,8 @@ import { OTP_TYPE_ENUM } from '@app/shared-lib/enums/otp-type';
 import { UserResponseEntity } from './entities/user.response';
 import { CreateUserAdditionalData } from './additionals/create-user';
 import { UpdateUserAdditionalData } from './additionals/update-user';
+import { PaymentService } from '../payment/payment.service';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -34,6 +36,7 @@ export class UsersService {
     @InjectRepository(OtpEntity)
     private readonly otpEntity: Repository<OtpEntity>,
     private readonly dataSource: DataSource,
+    private readonly paymentService: PaymentService,
   ) {}
 
   async create(input: CreateUserDto, additionalData: CreateUserAdditionalData) {
@@ -357,6 +360,49 @@ export class UsersService {
         await queryRunner.rollbackTransaction();
         await queryRunner.release();
       }
+      throw error;
+    }
+  }
+
+  async getByEmail(email: string) {
+    try {
+      const user = await this.userEntity.findOne({
+        where: { email },
+      });
+
+      if (!user) {
+        throw new NotFoundErrorHttp(LangKeys.AccountNotFoundErrorKey);
+      }
+
+      const primaryUser = user?.associated_to
+        ? await this.userEntity.findOne({
+            where: {
+              id: user?.associated_to,
+            },
+          })
+        : user;
+
+      const subscription = await this.paymentService.getSubscription(
+        primaryUser?.email,
+      );
+
+      const output = new UserResponseEntity();
+
+      output.id = user.id;
+      output.name = user.name;
+      output.email = user.email;
+      output.userType = user.user_type;
+      output.associatedTo = user.associated_to;
+      output.isVerified = user.is_verified;
+      output.roleId = user.role_id;
+      output.createdBy = user.created_by;
+      output.createdAt = user.created_at.toISOString();
+      output.updatedAt = user.updated_at.toISOString();
+      output.deletedAt = user.deleted_at?.toISOString();
+      output.subscription = subscription;
+
+      return output;
+    } catch (error) {
       throw error;
     }
   }

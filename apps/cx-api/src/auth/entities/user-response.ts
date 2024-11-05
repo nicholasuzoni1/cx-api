@@ -1,3 +1,4 @@
+import Stripe from 'stripe';
 import { ApiProperty } from '@nestjs/swagger';
 import { JsonResponseClass } from '@app/shared-lib/json-response';
 
@@ -41,6 +42,11 @@ export class UserResponseEntity {
     description: 'Creator id of user',
   })
   createdBy?: number;
+
+  @ApiProperty({
+    description: 'Creator id of user',
+  })
+  subscription?: Stripe.Subscription;
 }
 
 export class UserResponseType extends JsonResponseClass<UserResponseEntity> {
