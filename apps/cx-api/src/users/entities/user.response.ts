@@ -1,4 +1,5 @@
 export class Role {}
+import Stripe from 'stripe';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserResponseEntity {
@@ -56,4 +57,9 @@ export class UserResponseEntity {
     description: 'deletedAt',
   })
   deletedAt: string;
+
+  @ApiProperty({
+    description: 'deletedAt',
+  })
+  subscription?: Stripe.Subscription;
 }

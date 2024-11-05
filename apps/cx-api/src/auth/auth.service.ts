@@ -51,6 +51,7 @@ import { UpdatePasswordAdditionalData } from './additionals/update-password';
 import { MailClientService } from '../mail-client/mail-client.service';
 import { ProfileEntity } from 'apps/cx-api/entities/profile.entity';
 import { compileTemplate } from '@app/shared-lib/mail-template-utility';
+import { PaymentService } from '../payment/payment.service';
 
 @Injectable()
 export class AuthService {
@@ -70,6 +71,7 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly dataSource: DataSource,
     private readonly mailClientService: MailClientService,
+    private readonly paymentService: PaymentService,
   ) {}
 
   async signup(input: SignupDto) {
@@ -326,6 +328,10 @@ export class AuthService {
         expires_at: moment().add(3, 'days').utc().toDate(),
       });
 
+      const subscription = user.associated_to
+        ? null
+        : await this.paymentService.getSubscription(user.email);
+
       await this.userSessionEntity.save(newSession);
 
       const output = new SigninResponseEntity();
@@ -340,6 +346,7 @@ export class AuthService {
       _user.isVerified = user.is_verified;
       _user.roleId = user.role_id;
       _user.createdBy = user.created_by;
+      _user.subscription = subscription;
       // oUser.createdAt = user.created_at.toISOString();
       // oUser.updatedAt = user.updated_at.toISOString();
       // oUser.deletedAt = user.deleted_at?.toISOString();

@@ -7,6 +7,7 @@ import { UserSessionEntity } from 'apps/cx-api/entities/user-session.entity';
 import { OtpEntity } from 'apps/cx-api/entities/otp.entity';
 import { RoleEntity } from 'apps/cx-api/entities/role.entity';
 import { GuardModule } from '../guard/guard.module';
+import { PaymentModule } from '../payment/payment.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { GuardModule } from '../guard/guard.module';
       OtpEntity,
       RoleEntity,
     ]),
+    PaymentModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

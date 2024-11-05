@@ -28,12 +28,16 @@ import { AccountsModuleKeys } from '@app/permission-management/permission-module
 import { PermissionsDecorator } from '@app/shared-lib/decorators/permissions.decorator';
 import { JwtAuthGuard } from '../guard/guards/jwt-auth.guard';
 import { CommonPermissionGuard } from '../guard/guards/common-permission.guard';
+import { PaymentService } from '../payment/payment.service';
 
 @ApiBearerAuth()
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly paymentService: PaymentService,
+  ) {}
 
   @Post('/')
   @UseGuards(JwtAuthGuard, CommonPermissionGuard)
@@ -194,6 +198,29 @@ export class UsersController {
       const user = req.user as UserTokenPayloadType;
       const associatedTo = getAssociationId(user);
       const output = await this.usersService.delete(id, associatedTo);
+      return responseWrapper({
+        data: output,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get('/email/:email')
+  @UseGuards(JwtAuthGuard, CommonPermissionGuard)
+  @ApiResponse({
+    status: 200,
+    description: 'User received.',
+    type: GetUserResponseType,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async getByEmail(@Param('email') email: string, @Request() req) {
+    try {
+      const user = req.user as UserTokenPayloadType;
+      const output = await this.usersService.getByEmail(email);
       return responseWrapper({
         data: output,
       });

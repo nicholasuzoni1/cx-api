@@ -57,6 +57,7 @@
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "socket.io": "^4.7.5",
+    "stripe": "^17.3.1",
     "swagger-ui-express": "^5.0.1",
     "ts-proto": "^2.2.0",
     "typeorm": "^0.3.20"
@@ -117,5 +118,6 @@
       "^@app/shared-auth(|/.*)$": "<rootDir>/libs/shared-auth/src/$1",
       "^@app/load-managment(|/.*)$": "<rootDir>/libs/load-managment/src/$1"
     }
-  }
+  },
+  "packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee"
 }
