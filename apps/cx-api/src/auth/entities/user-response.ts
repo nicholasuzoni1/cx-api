@@ -47,6 +47,11 @@ export class UserResponseEntity {
     description: 'Creator id of user',
   })
   subscription?: Stripe.Subscription;
+
+  @ApiProperty({
+    description: 'Customer Id on payment stipe',
+  })
+  customerId?: string | null;
 }
 
 export class UserResponseType extends JsonResponseClass<UserResponseEntity> {
