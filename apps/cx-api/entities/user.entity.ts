@@ -56,6 +56,16 @@ export class UserEntity {
   @Column({
     default: null,
   })
+  language?: string | null;
+
+  @Column({
+    default: null,
+  })
+  logo: string | null;
+
+  @Column({
+    default: null,
+  })
   created_by: number | null;
 
   @OneToOne(() => ProfileEntity, (profile) => profile.user)

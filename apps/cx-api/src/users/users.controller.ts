@@ -29,6 +29,7 @@ import { PermissionsDecorator } from '@app/shared-lib/decorators/permissions.dec
 import { JwtAuthGuard } from '../guard/guards/jwt-auth.guard';
 import { CommonPermissionGuard } from '../guard/guards/common-permission.guard';
 import { PaymentService } from '../payment/payment.service';
+import { UpdateUserProfileDto } from './dto/update-user-profile-dto';
 
 @ApiBearerAuth()
 @ApiTags('Users')
@@ -206,8 +207,8 @@ export class UsersController {
     }
   }
 
-  @Get('/email/:email')
-  @UseGuards(JwtAuthGuard, CommonPermissionGuard)
+  @Get('/user/get')
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: 200,
     description: 'User received.',
@@ -217,10 +218,34 @@ export class UsersController {
     status: 400,
     description: 'Bad Request',
   })
-  async getByEmail(@Param('email') email: string, @Request() req) {
+  async getUser(@Request() req) {
     try {
       const user = req.user as UserTokenPayloadType;
-      const output = await this.usersService.getByEmail(email);
+      const output = await this.usersService.getUser(user.email);
+      return responseWrapper({
+        data: output,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Patch('/user/update')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({
+    status: 200,
+    description: 'User updated',
+    type: UpdateUserResponseType,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async updateUserProfile(@Request() req, @Body() input: UpdateUserProfileDto) {
+    try {
+      const user = req.user as UserTokenPayloadType;
+      const output = await this.usersService.updateUserProfile(input, user.id);
+
       return responseWrapper({
         data: output,
       });

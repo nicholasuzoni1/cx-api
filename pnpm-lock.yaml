@@ -62,6 +62,9 @@ importers:
       '@socketlabs/email':
         specifier: ^1.4.4
         version: 1.4.4
+      axios:
+        specifier: ^1.7.7
+        version: 1.7.7
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1

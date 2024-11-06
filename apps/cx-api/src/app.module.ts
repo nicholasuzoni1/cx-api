@@ -22,7 +22,10 @@ import { DefaultController } from './default.controller'; // Import your control
 import { BidModule } from './bid/bid.module';
 import { MailClientModule } from './mail-client/mail-client.module';
 import { ProfileEntity } from '../entities/profile.entity';
+import { AddressEntity } from '../entities/address.entity';
 import { PaymentModule } from './payment/payment.module';
+import { DocumentEntity } from '../entities/document.entity';
+import { ProfileModule } from './profile/profile.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -59,6 +62,8 @@ import { PaymentModule } from './payment/payment.module';
         BidEntity,
         ContractEntity,
         LoadStatusEntity,
+        //AddressEntity,
+        DocumentEntity,
       ],
       synchronize: !!process.env.POSTGRES_DB_SYNC,
       useUTC: true,
@@ -72,6 +77,7 @@ import { PaymentModule } from './payment/payment.module';
     BidModule,
     MailClientModule,
     PaymentModule,
+    ProfileModule,
   ],
   controllers: [DefaultController],
 })

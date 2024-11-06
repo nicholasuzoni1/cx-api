@@ -62,4 +62,9 @@ export class UserResponseEntity {
     description: 'deletedAt',
   })
   subscription?: Stripe.Subscription;
+
+  @ApiProperty({
+    description: 'language',
+  })
+  language?: string;
 }

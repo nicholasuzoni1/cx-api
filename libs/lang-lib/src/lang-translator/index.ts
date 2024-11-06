@@ -5,7 +5,9 @@ const LangObject = {
   es: 'spanish',
 } as const;
 
-export type LangType = 'en' | 'es-MX';
+export const SupportedLangs = [...Object.keys(LangObject)] as const;
+
+export type LangType = 'en' | 'es';
 
 export const LangTranslator = (key: string, lang: LangType = 'en') => {
   const langName = LangObject[lang] ? LangObject[lang] : LangObject.en;

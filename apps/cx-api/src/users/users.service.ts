@@ -10,6 +10,7 @@ import { RoleEntity } from 'apps/cx-api/entities/role.entity';
 import { OtpEntity } from 'apps/cx-api/entities/otp.entity';
 import {
   AlreadyExistsErrorHttp,
+  BadRequestErrorHttp,
   NotFoundErrorHttp,
 } from '@app/shared-lib/http-errors';
 import { LangKeys } from '@app/lang-lib/lang-keys';
@@ -23,6 +24,7 @@ import { UserResponseEntity } from './entities/user.response';
 import { CreateUserAdditionalData } from './additionals/create-user';
 import { UpdateUserAdditionalData } from './additionals/update-user';
 import { PaymentService } from '../payment/payment.service';
+import { UpdateUserProfileDto } from './dto/update-user-profile-dto';
 
 @Injectable()
 export class UsersService {
@@ -364,7 +366,7 @@ export class UsersService {
     }
   }
 
-  async getByEmail(email: string) {
+  async getUser(email: string) {
     try {
       const user = await this.userEntity.findOne({
         where: { email },
@@ -400,10 +402,50 @@ export class UsersService {
       output.updatedAt = user.updated_at.toISOString();
       output.deletedAt = user.deleted_at?.toISOString();
       output.subscription = subscription;
+      output.language = user.language;
 
       return output;
     } catch (error) {
       throw error;
     }
+  }
+
+  async updateUserProfile(payload: UpdateUserProfileDto, userId: number) {
+    const isExists = await this.userEntity.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!isExists) {
+      throw new NotFoundErrorHttp(LangKeys.AccountNotFoundErrorKey);
+    }
+
+    const updateStatus = await this.userEntity.update({ id: userId }, payload);
+
+    if (!updateStatus?.affected) {
+      throw new BadRequestErrorHttp(LangKeys.AccountNotUpdateErrorKey);
+    }
+
+    const updatedUser = await this.userEntity.findOne({
+      where: { id: userId },
+    });
+
+    const user = new UserResponseEntity();
+
+    user.id = updatedUser.id;
+    user.name = updatedUser.name;
+    user.email = updatedUser.email;
+    user.userType = updatedUser.user_type;
+    user.associatedTo = updatedUser.associated_to;
+    user.isVerified = updatedUser.is_verified;
+    user.roleId = updatedUser.role_id;
+    user.createdBy = updatedUser.created_by;
+    user.createdAt = updatedUser.created_at.toISOString();
+    user.updatedAt = updatedUser.updated_at.toISOString();
+    user.deletedAt = updatedUser.deleted_at?.toISOString();
+    user.language = updatedUser.language;
+
+    return user;
   }
 }
