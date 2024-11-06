@@ -52,6 +52,7 @@ import { MailClientService } from '../mail-client/mail-client.service';
 import { ProfileEntity } from 'apps/cx-api/entities/profile.entity';
 import { compileTemplate } from '@app/shared-lib/mail-template-utility';
 import { PaymentService } from '../payment/payment.service';
+import Stripe from 'stripe';
 
 @Injectable()
 export class AuthService {
@@ -205,14 +206,6 @@ export class AuthService {
   async verifyUser(input: VerifyUserDto) {
     let queryRunner: QueryRunner | null = null;
     try {
-      queryRunner = this.dataSource.createQueryRunner();
-
-      // Establish a real database connection
-      await queryRunner.connect();
-
-      // Start a transaction
-      await queryRunner.startTransaction();
-
       const otp = await this.otpEntity.findOne({
         where: {
           hash: input.hash,
@@ -222,6 +215,27 @@ export class AuthService {
       if (!otp) {
         throw new NotFoundErrorHttp(LangKeys.AccountNotFoundErrorKey);
       }
+
+      const user = await this.userEntity.findOne({
+        where: {
+          id: otp.user_id,
+        },
+      });
+
+      const isCustomerExists = user
+        ? await this.paymentService.getCustomer(user.email)
+        : null;
+      const customerId = isCustomerExists
+        ? isCustomerExists?.id || null
+        : (await this.paymentService.createCustomer(user))?.id;
+
+      queryRunner = this.dataSource.createQueryRunner();
+
+      // Establish a real database connection
+      await queryRunner.connect();
+
+      // Start a transaction
+      await queryRunner.startTransaction();
 
       await queryRunner.manager.softDelete(OtpEntity, {
         user_id: otp.user_id,
@@ -235,6 +249,7 @@ export class AuthService {
         },
         {
           is_verified: true,
+          customer_id: customerId,
         },
       );
 
@@ -262,15 +277,29 @@ export class AuthService {
         throw new NotFoundErrorHttp(LangKeys.AccountNotFoundErrorKey);
       }
 
+      const tempData = {
+        subscription: {} as Stripe.Subscription,
+        customerId: null,
+      };
+
       let tokenScope = '';
 
       if (user.associated_to) {
         const primaryUser = await this.userEntity.findOneBy({
           id: user.associated_to,
         });
+
         tokenScope = primaryUser?.user_type;
+        tempData.customerId = primaryUser?.customer_id || null;
+        tempData.subscription = await this.paymentService.getSubscription(
+          primaryUser.email,
+        );
       } else {
         tokenScope = user.user_type;
+        tempData.customerId = user?.customer_id || null;
+        tempData.subscription = await this.paymentService.getSubscription(
+          user.email,
+        );
       }
 
       const isPasswordMatching = await bcrypt.compare(
@@ -328,9 +357,7 @@ export class AuthService {
         expires_at: moment().add(3, 'days').utc().toDate(),
       });
 
-      const subscription = user.associated_to
-        ? null
-        : await this.paymentService.getSubscription(user.email);
+      //const subscription = user.associated_to ? null : await this.paymentService.getSubscription(user.email);
 
       await this.userSessionEntity.save(newSession);
 
@@ -346,7 +373,8 @@ export class AuthService {
       _user.isVerified = user.is_verified;
       _user.roleId = user.role_id;
       _user.createdBy = user.created_by;
-      _user.subscription = subscription;
+      _user.subscription = tempData.subscription;
+      _user.customerId = tempData.customerId;
       // oUser.createdAt = user.created_at.toISOString();
       // oUser.updatedAt = user.updated_at.toISOString();
       // oUser.deletedAt = user.deleted_at?.toISOString();

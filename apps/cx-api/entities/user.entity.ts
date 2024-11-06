@@ -51,6 +51,11 @@ export class UserEntity {
   @Column({
     default: null,
   })
+  customer_id: string | null;
+
+  @Column({
+    default: null,
+  })
   created_by: number | null;
 
   @OneToOne(() => ProfileEntity, (profile) => profile.user)

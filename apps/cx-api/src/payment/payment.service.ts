@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-
+import { UserEntity } from 'apps/cx-api/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 
@@ -11,6 +11,17 @@ export class PaymentService {
     this.stripe = new Stripe(
       this.configService.get<string>('STRIPE_SECRET_KEY'),
     );
+  }
+
+  async createCustomer(user: UserEntity) {
+    if (user && user?.name && user?.email) {
+      return await this.stripe.customers.create({
+        name: user.name,
+        email: user.email,
+      });
+    }
+
+    return null;
   }
 
   async getCustomer(email: string): Promise<Stripe.Customer> {
