@@ -57,6 +57,11 @@ export class UserResponseEntity {
     description: 'language',
   })
   language?: string;
+
+  @ApiProperty({
+    description: 'logo',
+  })
+  logo?: string;
 }
 
 export class UserResponseType extends JsonResponseClass<UserResponseEntity> {

@@ -8,6 +8,7 @@ export class UpdateUserProfileDto {
   @ApiProperty({
     description: 'name',
     example: 'John',
+    required: false,
   })
   name?: string;
 
@@ -17,6 +18,16 @@ export class UpdateUserProfileDto {
   @ApiProperty({
     description: 'language',
     example: 'en',
+    required: false,
   })
   language?: string;
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'Profile image',
+    type: 'string',
+    format: 'binary',
+    required: false,
+  })
+  logo?: any;
 }

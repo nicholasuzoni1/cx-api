@@ -67,4 +67,9 @@ export class UserResponseEntity {
     description: 'language',
   })
   language?: string;
+
+  @ApiProperty({
+    description: 'logo',
+  })
+  logo?: string;
 }

@@ -106,4 +106,10 @@ export const LangTranslation: LangTranslationType = {
     english: 'Profile not found',
     spanish: 'Profile not found',
   },
+
+  // User
+  [LangKeys.OnlyImagesAllowed]: {
+    english: 'Only images allowed',
+    spanish: 'Only images allowed',
+  },
 } as const;

@@ -29,4 +29,7 @@ export const LangKeys = {
 
   // Profile Error Keys
   ProfileNotFoundErrorKey: 'ProfileNotFoundErrorKey',
+
+  // User
+  OnlyImagesAllowed: 'OnlyImagesAllowed',
 } as const;

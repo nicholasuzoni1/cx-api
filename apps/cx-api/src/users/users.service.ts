@@ -403,6 +403,7 @@ export class UsersService {
       output.deletedAt = user.deleted_at?.toISOString();
       output.subscription = subscription;
       output.language = user.language;
+      output.logo = user.logo;
 
       return output;
     } catch (error) {
@@ -445,6 +446,7 @@ export class UsersService {
     user.updatedAt = updatedUser.updated_at.toISOString();
     user.deletedAt = updatedUser.deleted_at?.toISOString();
     user.language = updatedUser.language;
+    user.logo = updatedUser.logo;
 
     return user;
   }

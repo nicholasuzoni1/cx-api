@@ -22,12 +22,17 @@ import { DefaultController } from './default.controller'; // Import your control
 import { BidModule } from './bid/bid.module';
 import { MailClientModule } from './mail-client/mail-client.module';
 import { ProfileEntity } from '../entities/profile.entity';
-import { AddressEntity } from '../entities/address.entity';
 import { PaymentModule } from './payment/payment.module';
 import { DocumentEntity } from '../entities/document.entity';
 import { ProfileModule } from './profile/profile.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '../../..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
