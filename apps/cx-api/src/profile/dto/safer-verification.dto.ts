@@ -6,7 +6,7 @@ export class SaferVerifDto {
   @IsString()
   @ApiProperty({
     description: 'Company Name',
-    example: 'Best Company',
+    example: '12345',
   })
   dotNumber: string;
 }

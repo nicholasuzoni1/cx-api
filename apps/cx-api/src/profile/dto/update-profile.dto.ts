@@ -41,12 +41,4 @@ export class UpdateProfileDto {
     example: '123456789',
   })
   taxNumber?: string;
-
-  @IsOptional()
-  @IsString()
-  @ApiProperty({
-    description: 'Company dot number',
-    example: '123456789',
-  })
-  dotNumber?: string;
 }

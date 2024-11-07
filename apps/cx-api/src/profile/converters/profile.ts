@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { ProfileEntity } from 'apps/cx-api/entities/profile.entity';
 import { ProfileResponseEntity } from '../entities/profile.response';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
@@ -10,7 +9,6 @@ export class ProfileConverter {
     output.fax_number = input.faxNumber;
     output.license_number = input.licenseNumber;
     output.tax_number = input.taxNumber;
-    output.dot_number = input.dotNumber;
 
     return output;
   }
