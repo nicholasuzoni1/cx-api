@@ -54,4 +54,23 @@ export class PaymentService {
 
     return null;
   }
+
+  async listCards(
+    customerId: string,
+  ): Promise<Stripe.ApiList<Stripe.PaymentMethod>> {
+    return await this.stripe.paymentMethods.list({
+      customer: customerId,
+      type: 'card',
+    });
+  }
+
+  async removeCard(paymentMethodId: string) {
+    return await this.stripe.paymentMethods.detach(paymentMethodId);
+  }
+
+  async addCard(input: { paymentMethodId: string; customerId: string }) {
+    return await this.stripe.paymentMethods.attach(input.paymentMethodId, {
+      customer: input.customerId,
+    });
+  }
 }
