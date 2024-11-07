@@ -23,8 +23,16 @@ import { BidModule } from './bid/bid.module';
 import { MailClientModule } from './mail-client/mail-client.module';
 import { ProfileEntity } from '../entities/profile.entity';
 import { PaymentModule } from './payment/payment.module';
+import { DocumentEntity } from '../entities/document.entity';
+import { ProfileModule } from './profile/profile.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '../../..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -59,6 +67,8 @@ import { PaymentModule } from './payment/payment.module';
         BidEntity,
         ContractEntity,
         LoadStatusEntity,
+        //AddressEntity,
+        DocumentEntity,
       ],
       synchronize: !!process.env.POSTGRES_DB_SYNC,
       useUTC: true,
@@ -72,6 +82,7 @@ import { PaymentModule } from './payment/payment.module';
     BidModule,
     MailClientModule,
     PaymentModule,
+    ProfileModule,
   ],
   controllers: [DefaultController],
 })

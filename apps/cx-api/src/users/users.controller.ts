@@ -8,10 +8,20 @@ import {
   Delete,
   UseGuards,
   Request,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import * as fs from 'fs';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiOperation,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { CreateUserResponseType } from './entities/create-user.response';
 import { UserTokenPayloadType } from '@app/permission-management';
 import { getAssociationId } from '@app/permission-management/get-association';
@@ -29,6 +39,12 @@ import { PermissionsDecorator } from '@app/shared-lib/decorators/permissions.dec
 import { JwtAuthGuard } from '../guard/guards/jwt-auth.guard';
 import { CommonPermissionGuard } from '../guard/guards/common-permission.guard';
 import { PaymentService } from '../payment/payment.service';
+import { UpdateUserProfileDto } from './dto/update-user-profile-dto';
+import { BadRequestErrorHttp } from '@app/shared-lib/http-errors';
+import { LangKeys } from '@app/lang-lib/lang-keys';
+
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @ApiBearerAuth()
 @ApiTags('Users')
@@ -206,8 +222,8 @@ export class UsersController {
     }
   }
 
-  @Get('/email/:email')
-  @UseGuards(JwtAuthGuard, CommonPermissionGuard)
+  @Get('/user/get')
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: 200,
     description: 'User received.',
@@ -217,10 +233,71 @@ export class UsersController {
     status: 400,
     description: 'Bad Request',
   })
-  async getByEmail(@Param('email') email: string, @Request() req) {
+  async getUser(@Request() req) {
     try {
       const user = req.user as UserTokenPayloadType;
-      const output = await this.usersService.getByEmail(email);
+      const output = await this.usersService.getUser(user.email);
+      return responseWrapper({
+        data: output,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Patch('/user/update')
+  @UseInterceptors(
+    FileInterceptor('logo', {
+      storage: diskStorage({
+        destination: (req, file, callback) => {
+          const uploadPath = './uploads/logos';
+          if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+          }
+
+          callback(null, uploadPath);
+        },
+        filename: (req, file, callback) => {
+          const filename = `${Date.now()}-${file.originalname}`;
+          callback(null, filename);
+        },
+      }),
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+          return callback(
+            new BadRequestErrorHttp(LangKeys.OnlyImagesAllowed),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+    }),
+  )
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update user information' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({
+    status: 200,
+    description: 'User updated',
+    type: UpdateUserResponseType,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async updateUserProfile(
+    @Request() req,
+    @Body() input: UpdateUserProfileDto,
+    @UploadedFile() logo: Express.Multer.File,
+  ) {
+    try {
+      const user = req.user as UserTokenPayloadType;
+
+      if (logo) {
+        input.logo = logo?.path;
+      }
+      const output = await this.usersService.updateUserProfile(input, user.id);
+
       return responseWrapper({
         data: output,
       });

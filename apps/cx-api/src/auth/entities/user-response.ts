@@ -52,6 +52,16 @@ export class UserResponseEntity {
     description: 'Customer Id on payment stipe',
   })
   customerId?: string | null;
+
+  @ApiProperty({
+    description: 'language',
+  })
+  language?: string;
+
+  @ApiProperty({
+    description: 'logo',
+  })
+  logo?: string;
 }
 
 export class UserResponseType extends JsonResponseClass<UserResponseEntity> {

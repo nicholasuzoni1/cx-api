@@ -34,6 +34,10 @@ export const LangTranslation: LangTranslationType = {
     english: 'Account not found',
     spanish: 'Account not found',
   },
+  [LangKeys.AccountNotUpdateErrorKey]: {
+    english: 'Account not updated',
+    spanish: 'Account not updated',
+  },
   [LangKeys.OtpNotFoundErrorKey]: {
     english: 'Otp not found',
     spanish: 'Otp not found',
@@ -95,5 +99,17 @@ export const LangTranslation: LangTranslationType = {
   [LangKeys.BidNotFoundErrorKey]: {
     english: 'Bid not found',
     spanish: 'Bid not found',
+  },
+
+  // Profile keys
+  [LangKeys.ProfileNotFoundErrorKey]: {
+    english: 'Profile not found',
+    spanish: 'Profile not found',
+  },
+
+  // User
+  [LangKeys.OnlyImagesAllowed]: {
+    english: 'Only images allowed',
+    spanish: 'Only images allowed',
   },
 } as const;

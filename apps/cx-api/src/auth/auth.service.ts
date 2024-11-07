@@ -375,6 +375,8 @@ export class AuthService {
       _user.createdBy = user.created_by;
       _user.subscription = tempData.subscription;
       _user.customerId = tempData.customerId;
+      _user.language = user.language;
+      _user.logo = user.logo;
       // oUser.createdAt = user.created_at.toISOString();
       // oUser.updatedAt = user.updated_at.toISOString();
       // oUser.deletedAt = user.deleted_at?.toISOString();

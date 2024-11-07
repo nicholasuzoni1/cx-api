@@ -4,6 +4,7 @@ export const LangKeys = {
   UnAuthorizedErrorKey: 'UnAuthorizedError',
   AccountAlreadyExistsKey: 'AccountAlreadyExists',
   ValidationErrorKey: 'ValidationError',
+  AccountNotUpdateErrorKey: 'AccountNotUpdateErrorKey',
   AccountNotFoundErrorKey: 'AccountNotFoundErrorKey',
   OtpNotFoundErrorKey: 'OtpNotFoundErrorKey',
   SessionExpiresErrorKey: 'SessionExpiresErrorKey',
@@ -25,4 +26,10 @@ export const LangKeys = {
   // Bid Error Keys
   DuplicateBidErrorKey: 'DuplicateBidErrorKey',
   BidNotFoundErrorKey: 'BidNotFoundErrorKey',
+
+  // Profile Error Keys
+  ProfileNotFoundErrorKey: 'ProfileNotFoundErrorKey',
+
+  // User
+  OnlyImagesAllowed: 'OnlyImagesAllowed',
 } as const;
