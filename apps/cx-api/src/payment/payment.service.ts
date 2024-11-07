@@ -36,22 +36,21 @@ export class PaymentService {
     return null;
   }
 
-  async getSubscription(email: string): Promise<Stripe.Subscription> {
+  async getSubscription(email: string): Promise<any> {
     if (!email) return null;
-
     const customer = await this.getCustomer(email);
-
     const subscriptions = customer
       ? await this.stripe.subscriptions.list({
           customer: customer.id,
           status: 'active',
         })
       : null;
-
     if (subscriptions?.data?.length) {
-      return subscriptions?.data?.[0] || null;
+      const subscription = subscriptions?.data?.[0];
+      return await this.stripe.subscriptions.retrieve(subscription.id, {
+        expand: ['items.data.price.product'],
+      });
     }
-
     return null;
   }
 
