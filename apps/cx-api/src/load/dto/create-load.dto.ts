@@ -51,29 +51,32 @@ class LoadDimensions {
 }
 
 class LoadLocation {
-  @IsNotEmpty()
+  //@IsNotEmpty()
+  @IsOptional()
   @IsString()
   @ApiProperty({
     description: 'The address of the location',
     example: '123 Main St',
   })
-  address: string;
+  address?: string;
 
-  @IsNotEmpty()
+  //@IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   @ApiProperty({
     description: 'The latitude of the location',
     example: 40.7128,
   })
-  lat: number;
+  lat?: number;
 
-  @IsNotEmpty()
+  //@IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   @ApiProperty({
     description: 'The longitude of the location',
     example: -74.006,
   })
-  lng: number;
+  lng?: number;
 }
 
 // Decorator to check if the date is in the past
@@ -219,7 +222,8 @@ export class CreateLoadDetailsDto {
   })
   vehicleType: Vehicle_Type;
 
-  @IsNotEmpty()
+  // @IsNotEmpty()
+  @IsOptional()
   @ValidateNested()
   @Type(() => LoadLocation)
   @ApiProperty({
@@ -229,10 +233,12 @@ export class CreateLoadDetailsDto {
       lat: 31.509635,
       lng: 74.341322,
     },
+    nullable: true,
   })
-  pickupLocation: LoadLocation;
+  pickupLocation?: LoadLocation | null;
 
-  @IsNotEmpty()
+  // @IsNotEmpty()
+  @IsOptional()
   @IsDateString()
   @IsNotPastDate('pickupDateTime', {
     message: 'Pickup date and time must not be in the past.',
@@ -241,9 +247,10 @@ export class CreateLoadDetailsDto {
     description: 'The pickup date of the load',
     example: '2024-12-17T12:00:00Z',
   })
-  pickupDateTime: string;
+  pickupDateTime?: string | null;
 
-  @IsNotEmpty()
+  // @IsNotEmpty()
+  @IsOptional()
   @ValidateNested()
   @Type(() => LoadLocation)
   @ApiProperty({
@@ -253,10 +260,12 @@ export class CreateLoadDetailsDto {
       lat: 31.474495,
       lng: 74.402423,
     },
+    nullable: true,
   })
-  destinationLocation: LoadLocation;
+  destinationLocation?: LoadLocation | null;
 
-  @IsNotEmpty()
+  // @IsNotEmpty()
+  @IsOptional()
   @IsDateString()
   @IsAfterDate('pickupDateTime', {
     message: 'Arrival date and time must be after pickup date and time.',
@@ -265,7 +274,7 @@ export class CreateLoadDetailsDto {
     description: 'The arrival datetime of the load',
     example: '2025-01-17T12:00:00Z',
   })
-  arrivalDateTime: string;
+  arrivalDateTime?: string | null;
 
   @IsOptional()
   @ApiProperty({
@@ -323,6 +332,13 @@ export class CreateLoadDto {
   })
   status?: LoadStatus;
 
+  @IsOptional()
+  @ApiProperty({
+    description: 'The status of load',
+    example: 'Not initialized',
+  })
+  createdBy?: number;
+
   @IsArray()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
@@ -355,7 +371,7 @@ export class CreateLoadDto {
           lng: 74.402423,
         },
         arrivalDateTime: '2025-01-17T12:00:00Z',
-        status: 'active',
+        status: 'draft',
       },
       {
         title: 'Load 2',
@@ -381,7 +397,7 @@ export class CreateLoadDto {
           lng: 74.6789,
         },
         arrivalDateTime: '2025-01-20T12:00:00Z',
-        status: 'active',
+        status: 'draft',
       },
     ],
   })

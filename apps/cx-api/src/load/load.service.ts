@@ -135,6 +135,7 @@ export class LoadService {
           id: input.id,
           shipper_id: associatedTo,
         },
+        relations: ['loadDetails'],
       });
 
       if (!load) {
@@ -143,6 +144,7 @@ export class LoadService {
 
       load = LoadConverter.toUpdateInput(load, input);
 
+      //const savedLoad = await this.loadEntity.update({ id: input.id }, load);
       const savedLoad = await this.loadEntity.save(load);
 
       const output = LoadConverter.fromTable(savedLoad);

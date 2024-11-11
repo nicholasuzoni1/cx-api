@@ -11,6 +11,7 @@ import {
 import { BidEntity } from './bid.entity';
 import { ContractEntity } from './contract.entity';
 import { LoadDetailsEntity } from './load-details.entity';
+import { LoadStatus } from '@app/load-managment/enums/load-statuses';
 
 @Entity('loads')
 export class LoadEntity {
@@ -36,7 +37,7 @@ export class LoadEntity {
   })
   is_contract_made: boolean;
 
-  @Column({ nullable: true })
+  @Column({ default: LoadStatus.DRAFT })
   status?: string;
 
   @OneToMany(() => BidEntity, (bid) => bid.load)

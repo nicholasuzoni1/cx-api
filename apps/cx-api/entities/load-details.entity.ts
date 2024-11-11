@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { LoadEntity } from './load.entity';
 import { LoadStatusEntity } from './load-status.entity';
+import { LoadStatus } from '@app/load-managment/enums/load-statuses';
 
 @Entity('load_details')
 export class LoadDetailsEntity {
@@ -44,27 +45,27 @@ export class LoadDetailsEntity {
   @Column()
   vehicle_type: string;
 
-  @Column('json')
+  @Column('json', { nullable: true })
   pickup_location: {
     address: string;
     lat: number;
     lng: number;
   };
 
-  @Column({ type: 'timestamptz' })
+  @Column({ type: 'timestamptz', nullable: true })
   pickup_datetime: Date;
 
-  @Column('json')
+  @Column('json', { nullable: true })
   destination_location: {
     address: string;
     lat: number;
     lng: number;
   };
 
-  @Column({ type: 'timestamptz' })
+  @Column({ type: 'timestamptz', nullable: true })
   arrival_datetime: Date;
 
-  @Column({ nullable: true })
+  @Column({ default: LoadStatus.DRAFT })
   status?: string;
 
   // @OneToMany(() => LoadStatusEntity, (statuses) => statuses.subLoad)

@@ -43,18 +43,41 @@ export class LoadConverter {
           width: input.dimensions.width,
           height: input.dimensions.height,
         };
-        output.pickup_datetime = moment(input.pickupDateTime).utc().toDate();
-        output.arrival_datetime = moment(input.arrivalDateTime).utc().toDate();
-        output.pickup_location = {
-          address: input.pickupLocation.address,
-          lat: input.pickupLocation.lat,
-          lng: input.pickupLocation.lng,
-        };
-        output.destination_location = {
-          address: input.destinationLocation.address,
-          lat: input.destinationLocation.lat,
-          lng: input.destinationLocation.lng,
-        };
+
+        if (input?.pickupDateTime) {
+          output.pickup_datetime = moment(input.pickupDateTime).utc().toDate();
+        }
+
+        if (input?.arrivalDateTime) {
+          output.arrival_datetime = moment(input.arrivalDateTime)
+            .utc()
+            .toDate();
+        }
+
+        if (
+          input?.pickupLocation?.address &&
+          input?.pickupLocation?.lat &&
+          input?.pickupLocation?.lng
+        ) {
+          output.pickup_location = {
+            address: input.pickupLocation.address,
+            lat: input.pickupLocation.lat,
+            lng: input.pickupLocation.lng,
+          };
+        }
+
+        if (
+          input?.destinationLocation?.address &&
+          input?.destinationLocation?.lat &&
+          input?.destinationLocation?.lng
+        ) {
+          output.destination_location = {
+            address: input.destinationLocation.address,
+            lat: input.destinationLocation.lat,
+            lng: input.destinationLocation.lng,
+          };
+        }
+
         output.created_by = additionalData.createdBy;
 
         return output;
@@ -68,42 +91,43 @@ export class LoadConverter {
     const output = new LoadResponseEntity();
 
     output.id = res.id;
-    output.minBudget = res.min_budget;
-    output.maxBudget = res.max_budget;
-    output.isPrivate = false;
+    output.minBudget = res?.min_budget || null;
+    output.maxBudget = res?.max_budget || null;
+    output.isPrivate = res?.is_private || false;
 
     output.loadDetails = res.loadDetails.map((subLoad: LoadDetailsEntity) => {
       const output = new LoadDetailsResponseEntity();
 
-      output.id = subLoad.id;
-      output.loadUid = subLoad.load_uid;
-      output.title = subLoad.title;
-      output.loadType = subLoad.load_type;
-      output.vehicleType = subLoad.vehicle_type as Vehicle_Type;
-
-      output.weightUnit = subLoad.weight_unit as Weight_Unit_Type;
-      output.weight = subLoad.weight;
-      output.dimensionUnit = subLoad.dimension_unit as Dimension_Unit_Type;
+      output.id = subLoad?.id;
+      output.loadUid = subLoad?.load_uid || null;
+      output.title = subLoad?.title || null;
+      output.loadType = subLoad?.load_type || null;
+      output.vehicleType = (subLoad?.vehicle_type as Vehicle_Type) || null;
+      output.weightUnit = (subLoad?.weight_unit as Weight_Unit_Type) || null;
+      output.weight = subLoad?.weight || null;
+      output.dimensionUnit =
+        (subLoad?.dimension_unit as Dimension_Unit_Type) || null;
       output.dimensions = {
-        length: subLoad.dimensions.length,
-        width: subLoad.dimensions.width,
-        height: subLoad.dimensions.height,
+        length: subLoad?.dimensions?.length || null,
+        width: subLoad?.dimensions?.width || null,
+        height: subLoad?.dimensions?.height || null,
       };
-      output.pickupDateTime = moment(subLoad.pickup_datetime)
-        .utc()
-        .toISOString();
-      output.arrivalDateTime = moment(subLoad.arrival_datetime)
-        .utc()
-        .toISOString();
+
+      output.pickupDateTime = subLoad?.pickup_datetime
+        ? moment(subLoad?.pickup_datetime).utc().toISOString()
+        : null;
+      output.arrivalDateTime = subLoad?.arrival_datetime
+        ? moment(subLoad.arrival_datetime).utc().toISOString()
+        : null;
       output.pickupLocation = {
-        address: subLoad.pickup_location.address,
-        lat: subLoad.pickup_location.lat,
-        lng: subLoad.pickup_location.lng,
+        address: subLoad?.pickup_location?.address || null,
+        lat: subLoad?.pickup_location?.lat || null,
+        lng: subLoad?.pickup_location?.lng || null,
       };
       output.destinationLocation = {
-        address: subLoad.destination_location.address,
-        lat: subLoad.destination_location.lat,
-        lng: subLoad.destination_location.lng,
+        address: subLoad?.destination_location?.address || null,
+        lat: subLoad?.destination_location?.lat || null,
+        lng: subLoad?.destination_location?.lng || null,
       };
 
       return output;
@@ -130,7 +154,7 @@ export class LoadConverter {
       (input: Partial<CreateLoadDetailsDto>) => {
         const output = new LoadDetailsEntity();
 
-        output.title = input.title;
+        output.title = input?.title;
         output.load_type = input.loadType;
         output.vehicle_type = input.vehicleType;
 
@@ -142,18 +166,42 @@ export class LoadConverter {
           width: input.dimensions.width,
           height: input.dimensions.height,
         };
-        output.pickup_datetime = moment(input.pickupDateTime).utc().toDate();
-        output.arrival_datetime = moment(input.arrivalDateTime).utc().toDate();
-        output.pickup_location = {
-          address: input.pickupLocation.address,
-          lat: input.pickupLocation.lat,
-          lng: input.pickupLocation.lng,
-        };
-        output.destination_location = {
-          address: input.destinationLocation.address,
-          lat: input.destinationLocation.lat,
-          lng: input.destinationLocation.lng,
-        };
+
+        if (input?.pickupDateTime) {
+          output.pickup_datetime = moment(input.pickupDateTime).utc().toDate();
+        }
+
+        if (input?.arrivalDateTime) {
+          output.arrival_datetime = moment(input.arrivalDateTime)
+            .utc()
+            .toDate();
+        }
+
+        if (
+          input?.pickupLocation?.address &&
+          input?.pickupLocation?.lat &&
+          input?.pickupLocation?.lng
+        ) {
+          output.pickup_location = {
+            address: input.pickupLocation.address,
+            lat: input.pickupLocation.lat,
+            lng: input.pickupLocation.lng,
+          };
+        }
+
+        if (
+          input?.destinationLocation?.address &&
+          input?.destinationLocation?.lat &&
+          input?.destinationLocation?.lng
+        ) {
+          output.destination_location = {
+            address: input.destinationLocation.address,
+            lat: input.destinationLocation.lat,
+            lng: input.destinationLocation.lng,
+          };
+        }
+
+        output.created_by = 0;
 
         return output;
       },
