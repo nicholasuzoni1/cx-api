@@ -44,19 +44,26 @@ class LoadLocationResponseEntity {
   lng: number;
 }
 
-export class LoadResponseEntity {
+export class LoadDetailsResponseEntity {
   @IsNumber()
   @ApiProperty({
-    description: 'The id of load',
+    description: 'The id of sub load',
     example: 1,
   })
   id: number;
+
+  @ApiProperty({
+    description: 'Load UUID',
+    example: 'Unique String',
+  })
+  loadUid: string;
 
   @ApiProperty({
     description: 'The title of load',
     example: 'title',
   })
   title: string;
+
   @ApiProperty({
     description: 'The type of load',
     example: 'Briefly descripe your load',
@@ -79,7 +86,7 @@ export class LoadResponseEntity {
     description: 'The dimesion unit for load',
     example: Dimension_Unit_Names.cm,
   })
-  dimension_unit: Dimension_Unit_Type;
+  dimensionUnit: Dimension_Unit_Type;
 
   @ApiProperty({
     description: 'The dimensions of the load',
@@ -96,18 +103,6 @@ export class LoadResponseEntity {
     example: Vehicle_Type_Names['Dry Van'],
   })
   vehicleType: Vehicle_Type;
-
-  @ApiProperty({
-    description: 'The min budget for load',
-    example: 500,
-  })
-  minBudget: number;
-
-  @ApiProperty({
-    description: 'The max budget for load',
-    example: 600,
-  })
-  maxBudget: number;
 
   @ApiProperty({
     description: 'The pickup location details',
@@ -142,6 +137,33 @@ export class LoadResponseEntity {
   arrivalDateTime: string;
 
   @ApiProperty({
+    description: 'The status of sub load',
+    example: 'Not initialized',
+  })
+  status: string;
+}
+
+export class LoadResponseEntity {
+  @IsNumber()
+  @ApiProperty({
+    description: 'The id of load',
+    example: 1,
+  })
+  id: number;
+
+  @ApiProperty({
+    description: 'The min budget for load',
+    example: 500,
+  })
+  minBudget: number;
+
+  @ApiProperty({
+    description: 'The max budget for load',
+    example: 600,
+  })
+  maxBudget: number;
+
+  @ApiProperty({
     description: 'isPrivate',
     example: false,
   })
@@ -160,6 +182,12 @@ export class LoadResponseEntity {
   shipperId: number;
 
   @ApiProperty({
+    description: 'The status of sub load',
+    example: 'Not initialized',
+  })
+  status: string;
+
+  @ApiProperty({
     description: 'createdAt',
     example: 1,
   })
@@ -176,4 +204,64 @@ export class LoadResponseEntity {
     example: 1,
   })
   deletedAt: string;
+
+  @ApiProperty({
+    type: [LoadDetailsResponseEntity],
+    description: 'An array of sub loads to be created',
+    example: [
+      {
+        title: 'Load 1',
+        loadType: 'Briefly describe your load',
+        weightUnit: Weight_Unit_Names.kg,
+        weight: 50,
+        dimension_unit: Dimension_Unit_Names.cm,
+        dimensions: {
+          length: 10,
+          width: 10,
+          height: 5,
+        },
+        vehicleType: Vehicle_Type_Names.DRY_VAN,
+        pickupLocation: {
+          address: '123 Main St',
+          lat: 31.509635,
+          lng: 74.341322,
+        },
+        pickupDateTime: '2024-12-17T12:00:00Z',
+        destinationLocation: {
+          address: '456 Other St',
+          lat: 31.474495,
+          lng: 74.402423,
+        },
+        arrivalDateTime: '2025-01-17T12:00:00Z',
+        status: 'Posted',
+      },
+      {
+        title: 'Load 2',
+        loadType: 'Another load description',
+        weightUnit: Weight_Unit_Names.lb,
+        weight: 100,
+        dimension_unit: Dimension_Unit_Names.in,
+        dimensions: {
+          length: 20,
+          width: 20,
+          height: 10,
+        },
+        vehicleType: Vehicle_Type_Names.FLATBED_TRUCK,
+        pickupLocation: {
+          address: '789 Another St',
+          lat: 30.12345,
+          lng: 74.98765,
+        },
+        pickupDateTime: '2024-12-20T12:00:00Z',
+        destinationLocation: {
+          address: '101 Main St',
+          lat: 31.12345,
+          lng: 74.6789,
+        },
+        arrivalDateTime: '2025-01-20T12:00:00Z',
+        status: 'Posted',
+      },
+    ],
+  })
+  loadDetails: LoadDetailsResponseEntity[];
 }

@@ -12,6 +12,7 @@ import { RoleEntity } from '../entities/role.entity';
 import { UserSessionEntity } from '../entities/user-session.entity';
 import { UserEntity } from '../entities/user.entity';
 import { LoadEntity } from '../entities/load.entity';
+import { LoadDetailsEntity } from '../entities/load-details.entity';
 import { BidEntity } from '../entities/bid.entity';
 import { ContractEntity } from '../entities/contract.entity';
 import { LoadStatusEntity } from '../entities/load-status.entity';
@@ -69,6 +70,7 @@ import { join } from 'path';
         LoadStatusEntity,
         //AddressEntity,
         DocumentEntity,
+        LoadDetailsEntity,
       ],
       synchronize: !!process.env.POSTGRES_DB_SYNC,
       useUTC: true,

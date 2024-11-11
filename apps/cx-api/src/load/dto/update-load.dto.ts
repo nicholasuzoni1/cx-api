@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { CreateLoadDto } from './create-load.dto';
 
 export class UpdateLoadDto extends CreateLoadDto {

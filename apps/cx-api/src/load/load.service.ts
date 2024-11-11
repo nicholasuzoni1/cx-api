@@ -17,6 +17,7 @@ import { Vehicle_Type_NamedDescriptions } from '@app/load-managment/vehicle-type
 import { Weight_Unit_List } from '@app/load-managment/weight-types';
 import { DataforLoadPostingResponseEntity } from './entities/data-for-load-posting.response';
 import { Contract_Names } from '@app/load-managment/contract-types';
+import { LoadDetailsEntity } from 'apps/cx-api/entities/load-details.entity';
 
 @Injectable()
 export class LoadService {
@@ -25,8 +26,10 @@ export class LoadService {
     private readonly userEntity: Repository<UserEntity>,
     @InjectRepository(LoadEntity)
     private readonly loadEntity: Repository<LoadEntity>,
+    @InjectRepository(LoadDetailsEntity)
+    private readonly loadDetailsEntity: Repository<LoadDetailsEntity>,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   getDataforLoadPosting() {
     try {
@@ -41,49 +44,108 @@ export class LoadService {
     }
   }
 
-  async create(input: CreateLoadDto, additionalData: LoadAdditionalData) {
+  async create(load: CreateLoadDto, additionalData: LoadAdditionalData) {
     try {
       const user = await this.userEntity.findOne({
-        where: {
-          id: additionalData.createdBy,
-        },
+        where: { id: additionalData?.createdBy },
       });
 
       if (!user) {
         throw new AlreadyExistsErrorHttp(LangKeys.AccountAlreadyExistsKey);
       }
 
-      let newLoad = this.loadEntity.create();
+      const parsedLoad = LoadConverter.toCreateInput(load, additionalData);
+      const newLoad = await this.loadEntity.save(parsedLoad);
 
-      newLoad = LoadConverter.toCreateInput(newLoad, input, additionalData);
+      return LoadConverter.fromTable(newLoad);
+    } catch (error) {
+      throw error;
+    }
+  }
 
-      const savedLoad = await this.loadEntity.save(newLoad);
+  async findAll({
+    shipperId,
+    page,
+    limit,
+  }: {
+    shipperId: number;
+    page: number;
+    limit: number;
+  }) {
+    try {
+      const [loads, total] = await this.loadEntity.findAndCount({
+        where: {
+          shipper_id: shipperId,
+        },
+        relations: ['bids', 'contract', 'loadDetails'],
+        skip: (page - 1) * limit,
+        take: limit,
+      });
 
-      const output = LoadConverter.fromTable(savedLoad);
+      const output = loads.map((l) => {
+        return LoadConverter.fromTable(l);
+      });
+
+      return {
+        data: loads,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async remove(id: number) {
+    try {
+      await this.loadEntity.softDelete(id);
+      await this.loadDetailsEntity.softDelete({ load: { id } });
+
+      const output = {};
       return output;
     } catch (error) {
       throw error;
     }
   }
 
-  async findAll(id: number) {
+  async findOne(id: number) {
     try {
-      const loads = await this.loadEntity.find({
+      const load = await this.loadEntity.findOne({
+        where: { id },
+        relations: ['loadDetails'],
+      });
+
+      if (!load) {
+        throw new NotFoundErrorHttp(LangKeys.LoadNotFoundErrorKey);
+      }
+
+      const output = LoadConverter.fromTable(load);
+      return output;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async update(input: UpdateLoadDto, associatedTo: number) {
+    try {
+      let load = await this.loadEntity.findOne({
         where: {
-          shipper_id: id,
+          id: input.id,
+          shipper_id: associatedTo,
         },
-        relations: ['bids', 'contract', 'statuses'],
       });
 
-      console.log(
-        'Loads',
-        loads.map((l) => l.bids),
-      );
+      if (!load) {
+        throw new NotFoundErrorHttp(LangKeys.LoadNotFoundErrorKey);
+      }
 
-      const output = loads.map((l) => {
-        return LoadConverter.fromTable(l);
-      });
+      load = LoadConverter.toUpdateInput(load, input);
 
+      const savedLoad = await this.loadEntity.save(load);
+
+      const output = LoadConverter.fromTable(savedLoad);
       return output;
     } catch (error) {
       throw error;
@@ -165,71 +227,6 @@ export class LoadService {
         pageNumber, // Current page number
         totalPages, // Total number of pages
       };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async findOne(id: number) {
-    try {
-      const load = await this.loadEntity.findOne({
-        where: {
-          id: id,
-        },
-      });
-
-      if (!load) {
-        throw new NotFoundErrorHttp(LangKeys.LoadNotFoundErrorKey);
-      }
-
-      const output = LoadConverter.fromTable(load);
-      return output;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async update(input: UpdateLoadDto, associatedTo: number) {
-    try {
-      let load = await this.loadEntity.findOne({
-        where: {
-          id: input.id,
-          shipper_id: associatedTo,
-        },
-      });
-
-      if (!load) {
-        throw new NotFoundErrorHttp(LangKeys.LoadNotFoundErrorKey);
-      }
-
-      load = LoadConverter.toUpdateInput(load, input);
-
-      const savedLoad = await this.loadEntity.save(load);
-
-      const output = LoadConverter.fromTable(savedLoad);
-      return output;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async remove(id: number, associatedTo: number) {
-    try {
-      const load = await this.loadEntity.findOne({
-        where: {
-          id: id,
-          shipper_id: associatedTo,
-        },
-      });
-
-      if (!load) {
-        throw new NotFoundErrorHttp(LangKeys.LoadNotFoundErrorKey);
-      }
-
-      this.loadEntity.softDelete(load);
-
-      const output = {};
-      return output;
     } catch (error) {
       throw error;
     }

@@ -25,7 +25,13 @@ import {
   ValidateNested,
   IsDateString,
   IsIn,
+  IsArray,
+  ArrayNotEmpty,
+  IsBoolean,
+  IsOptional,
+  IsEnum,
 } from 'class-validator';
+import { LoadStatus } from '@app/load-managment/enums/load-statuses';
 
 class LoadDimensions {
   @IsNotEmpty()
@@ -42,6 +48,32 @@ class LoadDimensions {
   @IsNumber()
   @ApiProperty({ description: 'The height of the load', example: 5 })
   height: number;
+}
+
+class LoadLocation {
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    description: 'The address of the location',
+    example: '123 Main St',
+  })
+  address: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @ApiProperty({
+    description: 'The latitude of the location',
+    example: 40.7128,
+  })
+  lat: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @ApiProperty({
+    description: 'The longitude of the location',
+    example: -74.006,
+  })
+  lng: number;
 }
 
 // Decorator to check if the date is in the past
@@ -128,33 +160,7 @@ export type LoadAdditionalData = {
   createdBy?: number;
 };
 
-class LoadLocation {
-  @IsNotEmpty()
-  @IsString()
-  @ApiProperty({
-    description: 'The address of the location',
-    example: '123 Main St',
-  })
-  address: string;
-
-  @IsNotEmpty()
-  @IsNumber()
-  @ApiProperty({
-    description: 'The latitude of the location',
-    example: 40.7128,
-  })
-  lat: number;
-
-  @IsNotEmpty()
-  @IsNumber()
-  @ApiProperty({
-    description: 'The longitude of the location',
-    example: -74.006,
-  })
-  lng: number;
-}
-
-export class CreateLoadDto {
+export class CreateLoadDetailsDto {
   @IsNotEmpty()
   @ApiProperty({
     description: 'The title of load',
@@ -190,11 +196,11 @@ export class CreateLoadDto {
     description: 'The dimesion unit for load',
     example: Dimension_Unit_Names.cm,
   })
-  dimension_unit: Dimension_Unit_Type;
+  dimensionUnit: Dimension_Unit_Type;
 
   @IsNotEmpty()
   @ValidateNested()
-  @Type(() => LoadDimensions) // Needed for nested validation
+  @Type(() => LoadDimensions)
   @ApiProperty({
     description: 'The dimensions of the load',
     example: {
@@ -213,26 +219,9 @@ export class CreateLoadDto {
   })
   vehicleType: Vehicle_Type;
 
-  @IsNumber()
-  @ApiProperty({
-    description: 'The min budget for load',
-    example: 500,
-  })
-  minBudget: number;
-
-  @IsNumber()
-  @IsMaxBudgetGreaterThanMinBudget('minBudget', {
-    message: 'Maximum budget must be greater than or equal to minimum budget.',
-  })
-  @ApiProperty({
-    description: 'The max budget for load',
-    example: 600,
-  })
-  maxBudget: number;
-
   @IsNotEmpty()
   @ValidateNested()
-  @Type(() => LoadLocation) // Needed for nested validation
+  @Type(() => LoadLocation)
   @ApiProperty({
     description: 'The pickup location details',
     example: {
@@ -256,7 +245,7 @@ export class CreateLoadDto {
 
   @IsNotEmpty()
   @ValidateNested()
-  @Type(() => LoadLocation) // Needed for nested validation
+  @Type(() => LoadLocation)
   @ApiProperty({
     description: 'The destination location details',
     example: {
@@ -277,4 +266,124 @@ export class CreateLoadDto {
     example: '2025-01-17T12:00:00Z',
   })
   arrivalDateTime: string;
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'The status of sub load',
+    example: 'Not initialized',
+  })
+  @IsEnum(LoadStatus, {
+    message: 'Status must be one of: active, in_transit, completed',
+  })
+  status?: LoadStatus;
+}
+
+export class CreateLoadDto {
+  shipperId?: number;
+
+  @IsNumber()
+  @ApiProperty({
+    description: 'The min budget for load',
+    example: 500,
+  })
+  minBudget: number;
+
+  @IsNumber()
+  @IsMaxBudgetGreaterThanMinBudget('minBudget', {
+    message: 'Maximum budget must be greater than or equal to minimum budget.',
+  })
+  @ApiProperty({
+    description: 'The max budget for load',
+    example: 600,
+  })
+  maxBudget: number;
+
+  @IsBoolean()
+  @ApiProperty({
+    description: 'Is this load is private',
+    example: false,
+  })
+  isPrivate?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({
+    description: 'Is this load is private',
+    example: false,
+  })
+  isContractMade?: boolean;
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'The status of load',
+    example: 'Not initialized',
+  })
+  @IsEnum(LoadStatus, {
+    message: 'Status must be one of: active, in_transit, completed',
+  })
+  status?: LoadStatus;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => CreateLoadDetailsDto)
+  @ApiProperty({
+    type: [CreateLoadDetailsDto],
+    description: 'An array of sub loads to be created',
+    example: [
+      {
+        title: 'Load 1',
+        loadType: 'Briefly describe your load',
+        weightUnit: Weight_Unit_Names.kg,
+        weight: 50,
+        dimensionUnit: Dimension_Unit_Names.cm,
+        dimensions: {
+          length: 10,
+          width: 10,
+          height: 5,
+        },
+        vehicleType: Vehicle_Type_Names.DRY_VAN,
+        pickupLocation: {
+          address: '123 Main St',
+          lat: 31.509635,
+          lng: 74.341322,
+        },
+        pickupDateTime: '2024-12-17T12:00:00Z',
+        destinationLocation: {
+          address: '456 Other St',
+          lat: 31.474495,
+          lng: 74.402423,
+        },
+        arrivalDateTime: '2025-01-17T12:00:00Z',
+        status: 'active',
+      },
+      {
+        title: 'Load 2',
+        loadType: 'Another load description',
+        weightUnit: Weight_Unit_Names.lb,
+        weight: 100,
+        dimensionUnit: Dimension_Unit_Names.in,
+        dimensions: {
+          length: 20,
+          width: 20,
+          height: 10,
+        },
+        vehicleType: Vehicle_Type_Names.FLATBED_TRUCK,
+        pickupLocation: {
+          address: '789 Another St',
+          lat: 30.12345,
+          lng: 74.98765,
+        },
+        pickupDateTime: '2024-12-20T12:00:00Z',
+        destinationLocation: {
+          address: '101 Main St',
+          lat: 31.12345,
+          lng: 74.6789,
+        },
+        arrivalDateTime: '2025-01-20T12:00:00Z',
+        status: 'active',
+      },
+    ],
+  })
+  loadDetails: CreateLoadDetailsDto[];
 }
