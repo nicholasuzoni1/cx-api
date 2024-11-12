@@ -9,6 +9,7 @@ import {
   Request,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import { LoadService } from './load.service';
 import { CreateLoadDto } from './dto/create-load.dto';
@@ -100,6 +101,61 @@ export class LoadController {
     }
   }
 
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, CommonPermissionGuard)
+  @PermissionsDecorator({
+    module: Module_Names.Loads,
+    key: LoadsModuleKeys.VIEW_LOAD,
+  })
+  @ApiParam({ name: 'id', type: Number, description: 'id of load' })
+  @ApiResponse({
+    status: 200,
+    description: 'Load received.',
+    type: GetLoadResponseType,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async findOne(@Param('id') id: number) {
+    try {
+      const output = await this.loadService.findOne(id);
+      return responseWrapper({
+        data: output,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get('/check_draft')
+  @UseGuards(JwtAuthGuard, CommonPermissionGuard)
+  @PermissionsDecorator({
+    module: Module_Names.Loads,
+    key: LoadsModuleKeys.VIEW_LOAD,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Load received.',
+    type: GetLoadResponseType,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async checkDraft(@Req() req) {
+    try {
+      const user = req.user as UserTokenPayloadType;
+      const shipperId = getAssociationId(user);
+      const output = await this.loadService.checkDraft(shipperId);
+      return responseWrapper({
+        data: output,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
   @Post('/')
   @UseGuards(JwtAuthGuard, ShipperGuard)
   @PermissionsDecorator({
@@ -122,6 +178,34 @@ export class LoadController {
         shipperId: getAssociationId(user),
         createdBy: user.id,
       });
+      return responseWrapper({ data: output });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Patch('/')
+  @UseGuards(JwtAuthGuard, ShipperGuard)
+  @PermissionsDecorator({
+    module: Module_Names.Loads,
+    key: LoadsModuleKeys.UPDATE_LOAD,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Load updated',
+    type: UpdateLoadResponseType,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async update(@Request() req, @Body() input: UpdateLoadDto) {
+    try {
+      const user = req.user as UserTokenPayloadType;
+      const output = await this.loadService.update(
+        input,
+        getAssociationId(user),
+      );
       return responseWrapper({ data: output });
     } catch (error) {
       throw error;
@@ -151,61 +235,6 @@ export class LoadController {
       return responseWrapper({
         data: output,
       });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  @Get(':id')
-  @UseGuards(JwtAuthGuard, CommonPermissionGuard)
-  @PermissionsDecorator({
-    module: Module_Names.Loads,
-    key: LoadsModuleKeys.VIEW_LOAD,
-  })
-  @ApiParam({ name: 'id', type: Number, description: 'id of load' })
-  @ApiResponse({
-    status: 200,
-    description: 'Load received.',
-    type: GetLoadResponseType,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request',
-  })
-  async findOne(@Param('id') id: number) {
-    try {
-      const output = await this.loadService.findOne(id);
-      return responseWrapper({
-        data: output,
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  @Patch('/')
-  @UseGuards(JwtAuthGuard, ShipperGuard)
-  @PermissionsDecorator({
-    module: Module_Names.Loads,
-    key: LoadsModuleKeys.UPDATE_LOAD,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Load updated',
-    type: UpdateLoadResponseType,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request',
-  })
-  async update(@Request() req, @Body() input: UpdateLoadDto) {
-    try {
-      const user = req.user as UserTokenPayloadType;
-      const output = await this.loadService.update(
-        input,
-        getAssociationId(user),
-      );
-      return responseWrapper({ data: output });
     } catch (error) {
       throw error;
     }

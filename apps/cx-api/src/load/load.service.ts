@@ -233,4 +233,13 @@ export class LoadService {
       throw error;
     }
   }
+
+  async checkDraft(shipperId: number) {
+    return await this.loadEntity.findOne({
+      where: {
+        shipper_id: shipperId,
+      },
+      relations: ['loadDetails'],
+    });
+  }
 }

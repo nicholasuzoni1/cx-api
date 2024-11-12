@@ -141,6 +141,12 @@ export class LoadDetailsResponseEntity {
     example: 'Not initialized',
   })
   status: string;
+
+  @ApiProperty({
+    description: 'Order of sub load',
+    example: '1',
+  })
+  order: string;
 }
 
 export class LoadResponseEntity {
@@ -210,6 +216,8 @@ export class LoadResponseEntity {
     description: 'An array of sub loads to be created',
     example: [
       {
+        id: 1,
+        loadUid: 'Load_12345',
         title: 'Load 1',
         loadType: 'Briefly describe your load',
         weightUnit: Weight_Unit_Names.kg,
@@ -234,8 +242,11 @@ export class LoadResponseEntity {
         },
         arrivalDateTime: '2025-01-17T12:00:00Z',
         status: 'Posted',
+        order: 1,
       },
       {
+        id: 1,
+        loadUid: 'Load_12346',
         title: 'Load 2',
         loadType: 'Another load description',
         weightUnit: Weight_Unit_Names.lb,
@@ -260,6 +271,7 @@ export class LoadResponseEntity {
         },
         arrivalDateTime: '2025-01-20T12:00:00Z',
         status: 'Posted',
+        order: 2,
       },
     ],
   })

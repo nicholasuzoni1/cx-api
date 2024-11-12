@@ -17,7 +17,7 @@ export class LoadDetailsEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @PrimaryGeneratedColumn('uuid')
+  @Column({ unique: true })
   load_uid: string;
 
   @Column()
@@ -67,6 +67,9 @@ export class LoadDetailsEntity {
 
   @Column({ default: LoadStatus.DRAFT })
   status?: string;
+
+  @Column()
+  order?: number;
 
   // @OneToMany(() => LoadStatusEntity, (statuses) => statuses.subLoad)
   // statuses: LoadStatusEntity[];

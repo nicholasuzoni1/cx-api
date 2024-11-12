@@ -32,6 +32,7 @@ export class LoadConverter {
       (input: CreateLoadDetailsDto) => {
         const output = new LoadDetailsEntity();
 
+        output.load_uid = input.loadUid;
         output.title = input.title;
         output.load_type = input.loadType;
         output.vehicle_type = input.vehicleType;
@@ -79,6 +80,7 @@ export class LoadConverter {
         }
 
         output.created_by = additionalData.createdBy;
+        output.order = input?.order;
 
         return output;
       },
@@ -119,16 +121,28 @@ export class LoadConverter {
       output.arrivalDateTime = subLoad?.arrival_datetime
         ? moment(subLoad.arrival_datetime).utc().toISOString()
         : null;
-      output.pickupLocation = {
-        address: subLoad?.pickup_location?.address || null,
-        lat: subLoad?.pickup_location?.lat || null,
-        lng: subLoad?.pickup_location?.lng || null,
-      };
-      output.destinationLocation = {
-        address: subLoad?.destination_location?.address || null,
-        lat: subLoad?.destination_location?.lat || null,
-        lng: subLoad?.destination_location?.lng || null,
-      };
+
+      output.pickupLocation =
+        subLoad?.pickup_location?.address &&
+        subLoad?.pickup_location?.lat &&
+        subLoad?.pickup_location?.lng
+          ? {
+              address: subLoad?.pickup_location?.address || null,
+              lat: subLoad?.pickup_location?.lat || null,
+              lng: subLoad?.pickup_location?.lng || null,
+            }
+          : null;
+
+      output.destinationLocation =
+        subLoad?.destination_location?.address &&
+        subLoad?.destination_location?.lat &&
+        subLoad?.destination_location?.lng
+          ? {
+              address: subLoad?.destination_location?.address || null,
+              lat: subLoad?.destination_location?.lat || null,
+              lng: subLoad?.destination_location?.lng || null,
+            }
+          : null;
 
       return output;
     });
@@ -154,6 +168,7 @@ export class LoadConverter {
       (input: Partial<CreateLoadDetailsDto>) => {
         const output = new LoadDetailsEntity();
 
+        output.load_uid = input.loadUid;
         output.title = input?.title;
         output.load_type = input.loadType;
         output.vehicle_type = input.vehicleType;
@@ -201,6 +216,7 @@ export class LoadConverter {
           };
         }
 
+        output.order = input.order;
         output.created_by = 0;
 
         return output;

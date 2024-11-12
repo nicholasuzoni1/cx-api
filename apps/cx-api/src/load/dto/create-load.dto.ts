@@ -166,6 +166,13 @@ export type LoadAdditionalData = {
 export class CreateLoadDetailsDto {
   @IsNotEmpty()
   @ApiProperty({
+    description: 'The UID for the load',
+    example: 'job_12345',
+  })
+  loadUid: string;
+
+  @IsNotEmpty()
+  @ApiProperty({
     description: 'The title of load',
     example: 'title',
   })
@@ -285,6 +292,14 @@ export class CreateLoadDetailsDto {
     message: 'Status must be one of: active, in_transit, completed',
   })
   status?: LoadStatus;
+
+  @IsOptional()
+  @IsNumber()
+  @ApiProperty({
+    description: 'Order of sub load',
+    example: '1',
+  })
+  order?: number;
 }
 
 export class CreateLoadDto {
@@ -307,6 +322,7 @@ export class CreateLoadDto {
   })
   maxBudget: number;
 
+  @IsOptional()
   @IsBoolean()
   @ApiProperty({
     description: 'Is this load is private',
@@ -349,6 +365,7 @@ export class CreateLoadDto {
     example: [
       {
         title: 'Load 1',
+        loadUid: 'Load_12345',
         loadType: 'Briefly describe your load',
         weightUnit: Weight_Unit_Names.kg,
         weight: 50,
@@ -372,9 +389,11 @@ export class CreateLoadDto {
         },
         arrivalDateTime: '2025-01-17T12:00:00Z',
         status: 'draft',
+        order: 1,
       },
       {
         title: 'Load 2',
+        loadUid: 'Load_12346',
         loadType: 'Another load description',
         weightUnit: Weight_Unit_Names.lb,
         weight: 100,
@@ -398,6 +417,7 @@ export class CreateLoadDto {
         },
         arrivalDateTime: '2025-01-20T12:00:00Z',
         status: 'draft',
+        order: 2,
       },
     ],
   })
