@@ -10,6 +10,7 @@ import {
   UseGuards,
   Query,
   Req,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { LoadService } from './load.service';
 import { CreateLoadDto } from './dto/create-load.dto';
@@ -128,7 +129,7 @@ export class LoadController {
     }
   }
 
-  @Get('/check_draft')
+  @Get('/check/draft')
   @UseGuards(JwtAuthGuard, CommonPermissionGuard)
   @PermissionsDecorator({
     module: Module_Names.Loads,
@@ -143,7 +144,7 @@ export class LoadController {
     status: 400,
     description: 'Bad Request',
   })
-  async checkDraft(@Req() req) {
+  async checkDraft(@Request() req) {
     try {
       const user = req.user as UserTokenPayloadType;
       const shipperId = getAssociationId(user);
@@ -184,12 +185,13 @@ export class LoadController {
     }
   }
 
-  @Patch('/')
+  @Patch('/:id')
   @UseGuards(JwtAuthGuard, ShipperGuard)
   @PermissionsDecorator({
     module: Module_Names.Loads,
     key: LoadsModuleKeys.UPDATE_LOAD,
   })
+  @ApiParam({ name: 'id', type: Number, description: 'id of load' })
   @ApiResponse({
     status: 200,
     description: 'Load updated',
@@ -199,13 +201,14 @@ export class LoadController {
     status: 400,
     description: 'Bad Request',
   })
-  async update(@Request() req, @Body() input: UpdateLoadDto) {
+  async update(
+    @Request() req,
+    @Param('id', ParseIntPipe) loadId: number,
+    @Body() input: UpdateLoadDto,
+  ) {
     try {
       const user = req.user as UserTokenPayloadType;
-      const output = await this.loadService.update(
-        input,
-        getAssociationId(user),
-      );
+      const output = await this.loadService.update(input, loadId);
       return responseWrapper({ data: output });
     } catch (error) {
       throw error;

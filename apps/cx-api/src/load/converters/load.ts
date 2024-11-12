@@ -25,7 +25,7 @@ export class LoadConverter {
     output.max_budget = input.maxBudget;
     output.is_private = input?.isPrivate || false;
     output.is_contract_made = input?.isContractMade || false;
-    output.status = input?.status || '';
+    output.status = input?.status;
     output.created_by = additionalData.createdBy;
 
     output.loadDetails = input.loadDetails.map(
@@ -96,6 +96,12 @@ export class LoadConverter {
     output.minBudget = res?.min_budget || null;
     output.maxBudget = res?.max_budget || null;
     output.isPrivate = res?.is_private || false;
+    output.status = res?.status || null;
+    output.shipperId = res.shipper_id;
+    output.createdBy = res.created_by;
+    output.createdAt = res.created_at.toISOString();
+    output.updatedAt = res.updated_at.toISOString();
+    output.deletedAt = res.deleted_at?.toISOString();
 
     output.loadDetails = res.loadDetails.map((subLoad: LoadDetailsEntity) => {
       const output = new LoadDetailsResponseEntity();
@@ -107,6 +113,9 @@ export class LoadConverter {
       output.vehicleType = (subLoad?.vehicle_type as Vehicle_Type) || null;
       output.weightUnit = (subLoad?.weight_unit as Weight_Unit_Type) || null;
       output.weight = subLoad?.weight || null;
+      output.order = subLoad?.order;
+      output.status = subLoad?.status;
+
       output.dimensionUnit =
         (subLoad?.dimension_unit as Dimension_Unit_Type) || null;
       output.dimensions = {
@@ -147,22 +156,21 @@ export class LoadConverter {
       return output;
     });
 
-    output.shipperId = res.shipper_id;
-    output.createdBy = res.created_by;
-    output.createdAt = res.created_at.toISOString();
-    output.updatedAt = res.updated_at.toISOString();
-    output.deletedAt = res.deleted_at?.toISOString();
-
     return output;
   }
 
-  static toUpdateInput(output: LoadEntity, input: UpdateLoadDto) {
+  static toUpdateInput(input: UpdateLoadDto) {
+    const output = new LoadEntity();
+
+    const loadId = input?.id;
+    const createdBy = input?.createdBy;
+
     output.id = input?.id;
     output.min_budget = input?.minBudget;
     output.max_budget = input?.maxBudget;
     output.is_private = input?.isPrivate || false;
     output.is_contract_made = input?.isContractMade || false;
-    output.status = input?.status || '';
+    output.status = input?.status;
 
     output.loadDetails = input?.loadDetails.map(
       (input: Partial<CreateLoadDetailsDto>) => {
@@ -172,10 +180,13 @@ export class LoadConverter {
         output.title = input?.title;
         output.load_type = input.loadType;
         output.vehicle_type = input.vehicleType;
-
         output.weight_unit = input.weightUnit;
         output.weight = input.weight;
         output.dimension_unit = input.dimensionUnit;
+        output.order = input.order;
+        output.loadId = loadId;
+        output.created_by = createdBy;
+
         output.dimensions = {
           length: input.dimensions.length,
           width: input.dimensions.width,
@@ -215,9 +226,6 @@ export class LoadConverter {
             lng: input.destinationLocation.lng,
           };
         }
-
-        output.order = input.order;
-        output.created_by = 0;
 
         return output;
       },

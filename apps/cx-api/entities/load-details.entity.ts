@@ -71,6 +71,9 @@ export class LoadDetailsEntity {
   @Column()
   order?: number;
 
+  @Column()
+  loadId?: number;
+
   // @OneToMany(() => LoadStatusEntity, (statuses) => statuses.subLoad)
   // statuses: LoadStatusEntity[];
 

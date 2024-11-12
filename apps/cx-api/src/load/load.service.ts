@@ -128,27 +128,39 @@ export class LoadService {
     }
   }
 
-  async update(input: UpdateLoadDto, associatedTo: number) {
+  async update(input: UpdateLoadDto, loadId: number) {
     try {
-      let load = await this.loadEntity.findOne({
+      const updateLoad = LoadConverter.toUpdateInput(input);
+
+      const { loadDetails, ...load } = updateLoad;
+
+      const existingLoadDetails = await this.loadDetailsEntity.find({
         where: {
-          id: input.id,
-          shipper_id: associatedTo,
+          loadId,
         },
-        relations: ['loadDetails'],
+        select: ['load_uid'],
       });
 
-      if (!load) {
-        throw new NotFoundErrorHttp(LangKeys.LoadNotFoundErrorKey);
-      }
+      const existingLoadUids = existingLoadDetails.map(
+        (detail) => detail.load_uid,
+      );
 
-      load = LoadConverter.toUpdateInput(load, input);
+      await this.loadEntity.update({ id: loadId }, load);
 
-      //const savedLoad = await this.loadEntity.update({ id: input.id }, load);
-      const savedLoad = await this.loadEntity.save(load);
+      const promisesArray = (loadDetails || []).map((loadDetail) => {
+        if (!existingLoadUids.includes(loadDetail.load_uid)) {
+          return this.loadDetailsEntity.save(loadDetail);
+        } else {
+          return this.loadDetailsEntity.update(
+            { id: loadDetail.id },
+            loadDetail,
+          );
+        }
+      });
 
-      const output = LoadConverter.fromTable(savedLoad);
-      return output;
+      await Promise.all(promisesArray);
+
+      return await this.findOne(loadId);
     } catch (error) {
       throw error;
     }
@@ -235,11 +247,15 @@ export class LoadService {
   }
 
   async checkDraft(shipperId: number) {
-    return await this.loadEntity.findOne({
+    const draftLoad = await this.loadEntity.findOne({
       where: {
         shipper_id: shipperId,
+        status: 'draft',
       },
       relations: ['loadDetails'],
     });
+
+    const output = LoadConverter.fromTable(draftLoad);
+    return output;
   }
 }

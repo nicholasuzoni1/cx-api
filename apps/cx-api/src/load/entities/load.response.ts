@@ -138,7 +138,7 @@ export class LoadDetailsResponseEntity {
 
   @ApiProperty({
     description: 'The status of sub load',
-    example: 'Not initialized',
+    example: 'draft',
   })
   status: string;
 
@@ -146,7 +146,7 @@ export class LoadDetailsResponseEntity {
     description: 'Order of sub load',
     example: '1',
   })
-  order: string;
+  order: number;
 }
 
 export class LoadResponseEntity {
@@ -189,7 +189,7 @@ export class LoadResponseEntity {
 
   @ApiProperty({
     description: 'The status of sub load',
-    example: 'Not initialized',
+    example: 'draft',
   })
   status: string;
 

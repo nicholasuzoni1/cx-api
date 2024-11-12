@@ -286,7 +286,7 @@ export class CreateLoadDetailsDto {
   @IsOptional()
   @ApiProperty({
     description: 'The status of sub load',
-    example: 'Not initialized',
+    example: 'draft',
   })
   @IsEnum(LoadStatus, {
     message: 'Status must be one of: active, in_transit, completed',
@@ -341,7 +341,7 @@ export class CreateLoadDto {
   @IsOptional()
   @ApiProperty({
     description: 'The status of load',
-    example: 'Not initialized',
+    example: 'draft',
   })
   @IsEnum(LoadStatus, {
     message: 'Status must be one of: active, in_transit, completed',
@@ -350,8 +350,8 @@ export class CreateLoadDto {
 
   @IsOptional()
   @ApiProperty({
-    description: 'The status of load',
-    example: 'Not initialized',
+    description: 'Load details created by',
+    example: '1',
   })
   createdBy?: number;
 
