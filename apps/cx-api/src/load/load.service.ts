@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateLoadDto, LoadAdditionalData } from './dto/create-load.dto';
 import { UpdateLoadDto } from './dto/update-load.dto';
 import { UserEntity } from 'apps/cx-api/entities/user.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LoadEntity } from 'apps/cx-api/entities/load.entity';
 import {
@@ -18,6 +18,7 @@ import { Weight_Unit_List } from '@app/load-managment/weight-types';
 import { DataforLoadPostingResponseEntity } from './entities/data-for-load-posting.response';
 import { Contract_Names } from '@app/load-managment/contract-types';
 import { LoadDetailsEntity } from 'apps/cx-api/entities/load-details.entity';
+import { LoadStatus } from '@app/load-managment/enums/load-statuses';
 
 @Injectable()
 export class LoadService {
@@ -46,14 +47,6 @@ export class LoadService {
 
   async create(load: CreateLoadDto, additionalData: LoadAdditionalData) {
     try {
-      const user = await this.userEntity.findOne({
-        where: { id: additionalData?.createdBy },
-      });
-
-      if (!user) {
-        throw new AlreadyExistsErrorHttp(LangKeys.AccountAlreadyExistsKey);
-      }
-
       const parsedLoad = LoadConverter.toCreateInput(load, additionalData);
       const newLoad = await this.loadEntity.save(parsedLoad);
 
@@ -247,15 +240,80 @@ export class LoadService {
   }
 
   async checkDraft(shipperId: number) {
-    const draftLoad = await this.loadEntity.findOne({
-      where: {
-        shipper_id: shipperId,
-        status: 'draft',
-      },
-      relations: ['loadDetails'],
-    });
+    try {
+      const draftLoad = await this.loadEntity.findOne({
+        where: {
+          shipper_id: shipperId,
+          status: 'draft',
+        },
+        relations: ['loadDetails'],
+      });
 
-    const output = LoadConverter.fromTable(draftLoad);
-    return output;
+      const output = LoadConverter.fromTable(draftLoad);
+      return output;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async postLoad(loadId: number) {
+    try {
+      const loadDetailsIds = [];
+
+      const load = await this.loadEntity.findOne({
+        where: {
+          id: loadId,
+        },
+        relations: ['loadDetails'],
+      });
+
+      const loadDetails = load?.loadDetails || [];
+
+      // Check load details
+      if (!loadDetails.length) {
+        // Need to update
+        throw new NotFoundErrorHttp(LangKeys.LoadDetailsNotComplete);
+      }
+
+      // Check load budget
+      if (!load?.min_budget || !load?.max_budget) {
+        // Need to update
+        throw new NotFoundErrorHttp(LangKeys.LoadDetailsNotComplete);
+      }
+
+      // Check location details in load details
+      for (const loadDetail of loadDetails) {
+        const {
+          pickup_location,
+          destination_location,
+          pickup_datetime,
+          arrival_datetime,
+          id,
+        } = loadDetail;
+
+        if (
+          !pickup_location?.address ||
+          !destination_location?.address ||
+          !pickup_datetime ||
+          !arrival_datetime
+        ) {
+          throw new NotFoundErrorHttp(LangKeys.LoadDetailsNotComplete);
+        }
+
+        loadDetailsIds.push(id);
+      }
+
+      await Promise.all([
+        this.loadEntity.update({ id: loadId }, { status: LoadStatus.ACTIVE }),
+        this.loadDetailsEntity.update(
+          { id: In(loadDetailsIds) },
+          { status: LoadStatus.ACTIVE },
+        ),
+      ]);
+
+      return {};
+    } catch (error) {
+      throw error;
+    }
   }
 }

@@ -32,4 +32,7 @@ export const LangKeys = {
 
   // User
   OnlyImagesAllowed: 'OnlyImagesAllowed',
+
+  // Load
+  LoadDetailsNotComplete: 'LoadDetailsNotComplete',
 } as const;

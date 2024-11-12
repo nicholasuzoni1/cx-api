@@ -91,6 +91,10 @@ export const LangTranslation: LangTranslationType = {
     english: 'Load not found',
     spanish: 'Load not found',
   },
+  [LangKeys.LoadDetailsNotComplete]: {
+    english: 'In-Complete load details',
+    spanish: 'In-Complete load details',
+  },
   // Bid keys
   [LangKeys.DuplicateBidErrorKey]: {
     english: 'Duplicate bid not allowed',

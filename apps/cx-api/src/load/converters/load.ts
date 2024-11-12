@@ -92,16 +92,16 @@ export class LoadConverter {
   static fromTable(res: LoadEntity) {
     const output = new LoadResponseEntity();
 
-    output.id = res.id;
+    output.id = res?.id;
     output.minBudget = res?.min_budget || null;
     output.maxBudget = res?.max_budget || null;
     output.isPrivate = res?.is_private || false;
     output.status = res?.status || null;
-    output.shipperId = res.shipper_id;
-    output.createdBy = res.created_by;
-    output.createdAt = res.created_at.toISOString();
-    output.updatedAt = res.updated_at.toISOString();
-    output.deletedAt = res.deleted_at?.toISOString();
+    output.shipperId = res?.shipper_id;
+    output.createdBy = res?.created_by;
+    output.createdAt = res?.created_at.toISOString();
+    output.updatedAt = res?.updated_at.toISOString();
+    output.deletedAt = res?.deleted_at?.toISOString();
 
     output.loadDetails = res.loadDetails.map((subLoad: LoadDetailsEntity) => {
       const output = new LoadDetailsResponseEntity();

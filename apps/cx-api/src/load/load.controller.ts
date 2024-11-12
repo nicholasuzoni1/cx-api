@@ -185,6 +185,32 @@ export class LoadController {
     }
   }
 
+  @Patch('/load/post/:id')
+  @UseGuards(JwtAuthGuard, ShipperGuard)
+  @ApiParam({ name: 'id', type: Number, description: 'id of load' })
+  @PermissionsDecorator({
+    module: Module_Names.Loads,
+    key: LoadsModuleKeys.UPDATE_LOAD,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Load posted',
+    type: Object,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async postLoad(@Request() req, @Param('id', ParseIntPipe) loadId: number) {
+    try {
+      const user = req.user as UserTokenPayloadType;
+      const output = await this.loadService.postLoad(loadId);
+      return responseWrapper({ data: output });
+    } catch (error) {
+      throw error;
+    }
+  }
+
   @Patch('/:id')
   @UseGuards(JwtAuthGuard, ShipperGuard)
   @PermissionsDecorator({
