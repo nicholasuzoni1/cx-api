@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { UpdateLoadDto } from '../dto/update-load.dto';
+import { UpdateLoadDetailDto, UpdateLoadDto } from '../dto/update-load.dto';
 import { LoadEntity } from 'apps/cx-api/entities/load.entity';
 import { LoadDetailsEntity } from 'apps/cx-api/entities/load-details.entity';
 import { LoadResponseEntity } from '../entities/load.response';
@@ -173,9 +173,10 @@ export class LoadConverter {
     output.status = input?.status;
 
     output.loadDetails = input?.loadDetails.map(
-      (input: Partial<CreateLoadDetailsDto>) => {
+      (input: UpdateLoadDetailDto) => {
         const output = new LoadDetailsEntity();
 
+        output.id = input?.id;
         output.load_uid = input.loadUid;
         output.title = input?.title;
         output.load_type = input.loadType;

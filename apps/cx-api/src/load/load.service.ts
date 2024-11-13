@@ -146,7 +146,7 @@ export class LoadService {
         } else {
           return this.loadDetailsEntity.update(
             { id: loadDetail.id },
-            loadDetail,
+            { ...loadDetail },
           );
         }
       });
