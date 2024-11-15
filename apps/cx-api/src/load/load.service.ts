@@ -88,7 +88,7 @@ export class LoadService {
       });
 
       return {
-        data: loads,
+        data: output,
         total,
         page,
         limit,
