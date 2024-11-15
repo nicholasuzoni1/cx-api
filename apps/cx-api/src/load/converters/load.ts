@@ -103,58 +103,60 @@ export class LoadConverter {
     output.updatedAt = res?.updated_at.toISOString();
     output.deletedAt = res?.deleted_at?.toISOString();
 
-    output.loadDetails = res.loadDetails.map((subLoad: LoadDetailsEntity) => {
-      const output = new LoadDetailsResponseEntity();
+    output.loadDetails = (res?.loadDetails || []).map(
+      (subLoad: LoadDetailsEntity) => {
+        const output = new LoadDetailsResponseEntity();
 
-      output.id = subLoad?.id;
-      output.loadUid = subLoad?.load_uid || null;
-      output.title = subLoad?.title || null;
-      output.loadType = subLoad?.load_type || null;
-      output.vehicleType = (subLoad?.vehicle_type as Vehicle_Type) || null;
-      output.weightUnit = (subLoad?.weight_unit as Weight_Unit_Type) || null;
-      output.weight = subLoad?.weight || null;
-      output.order = subLoad?.order;
-      output.status = subLoad?.status;
+        output.id = subLoad?.id;
+        output.loadUid = subLoad?.load_uid || null;
+        output.title = subLoad?.title || null;
+        output.loadType = subLoad?.load_type || null;
+        output.vehicleType = (subLoad?.vehicle_type as Vehicle_Type) || null;
+        output.weightUnit = (subLoad?.weight_unit as Weight_Unit_Type) || null;
+        output.weight = subLoad?.weight || null;
+        output.order = subLoad?.order;
+        output.status = subLoad?.status;
 
-      output.dimensionUnit =
-        (subLoad?.dimension_unit as Dimension_Unit_Type) || null;
-      output.dimensions = {
-        length: subLoad?.dimensions?.length || null,
-        width: subLoad?.dimensions?.width || null,
-        height: subLoad?.dimensions?.height || null,
-      };
+        output.dimensionUnit =
+          (subLoad?.dimension_unit as Dimension_Unit_Type) || null;
+        output.dimensions = {
+          length: subLoad?.dimensions?.length || null,
+          width: subLoad?.dimensions?.width || null,
+          height: subLoad?.dimensions?.height || null,
+        };
 
-      output.pickupDateTime = subLoad?.pickup_datetime
-        ? moment(subLoad?.pickup_datetime).utc().toISOString()
-        : null;
-      output.arrivalDateTime = subLoad?.arrival_datetime
-        ? moment(subLoad.arrival_datetime).utc().toISOString()
-        : null;
-
-      output.pickupLocation =
-        subLoad?.pickup_location?.address &&
-        subLoad?.pickup_location?.lat &&
-        subLoad?.pickup_location?.lng
-          ? {
-              address: subLoad?.pickup_location?.address || null,
-              lat: subLoad?.pickup_location?.lat || null,
-              lng: subLoad?.pickup_location?.lng || null,
-            }
+        output.pickupDateTime = subLoad?.pickup_datetime
+          ? moment(subLoad?.pickup_datetime).utc().toISOString()
+          : null;
+        output.arrivalDateTime = subLoad?.arrival_datetime
+          ? moment(subLoad.arrival_datetime).utc().toISOString()
           : null;
 
-      output.destinationLocation =
-        subLoad?.destination_location?.address &&
-        subLoad?.destination_location?.lat &&
-        subLoad?.destination_location?.lng
-          ? {
-              address: subLoad?.destination_location?.address || null,
-              lat: subLoad?.destination_location?.lat || null,
-              lng: subLoad?.destination_location?.lng || null,
-            }
-          : null;
+        output.pickupLocation =
+          subLoad?.pickup_location?.address &&
+          subLoad?.pickup_location?.lat &&
+          subLoad?.pickup_location?.lng
+            ? {
+                address: subLoad?.pickup_location?.address || null,
+                lat: subLoad?.pickup_location?.lat || null,
+                lng: subLoad?.pickup_location?.lng || null,
+              }
+            : null;
 
-      return output;
-    });
+        output.destinationLocation =
+          subLoad?.destination_location?.address &&
+          subLoad?.destination_location?.lat &&
+          subLoad?.destination_location?.lng
+            ? {
+                address: subLoad?.destination_location?.address || null,
+                lat: subLoad?.destination_location?.lat || null,
+                lng: subLoad?.destination_location?.lng || null,
+              }
+            : null;
+
+        return output;
+      },
+    );
 
     return output;
   }
