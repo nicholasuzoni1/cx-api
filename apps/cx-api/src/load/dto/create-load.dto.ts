@@ -25,7 +25,13 @@ import {
   ValidateNested,
   IsDateString,
   IsIn,
+  IsArray,
+  ArrayNotEmpty,
+  IsBoolean,
+  IsOptional,
+  IsEnum,
 } from 'class-validator';
+import { LoadStatus } from '@app/load-managment/enums/load-statuses';
 
 class LoadDimensions {
   @IsNotEmpty()
@@ -42,6 +48,35 @@ class LoadDimensions {
   @IsNumber()
   @ApiProperty({ description: 'The height of the load', example: 5 })
   height: number;
+}
+
+class LoadLocation {
+  //@IsNotEmpty()
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'The address of the location',
+    example: '123 Main St',
+  })
+  address?: string;
+
+  //@IsNotEmpty()
+  @IsOptional()
+  @IsNumber()
+  @ApiProperty({
+    description: 'The latitude of the location',
+    example: 40.7128,
+  })
+  lat?: number;
+
+  //@IsNotEmpty()
+  @IsOptional()
+  @IsNumber()
+  @ApiProperty({
+    description: 'The longitude of the location',
+    example: -74.006,
+  })
+  lng?: number;
 }
 
 // Decorator to check if the date is in the past
@@ -128,33 +163,14 @@ export type LoadAdditionalData = {
   createdBy?: number;
 };
 
-class LoadLocation {
+export class CreateLoadDetailsDto {
   @IsNotEmpty()
-  @IsString()
   @ApiProperty({
-    description: 'The address of the location',
-    example: '123 Main St',
+    description: 'The UID for the load',
+    example: 'job_12345',
   })
-  address: string;
+  loadUid: string;
 
-  @IsNotEmpty()
-  @IsNumber()
-  @ApiProperty({
-    description: 'The latitude of the location',
-    example: 40.7128,
-  })
-  lat: number;
-
-  @IsNotEmpty()
-  @IsNumber()
-  @ApiProperty({
-    description: 'The longitude of the location',
-    example: -74.006,
-  })
-  lng: number;
-}
-
-export class CreateLoadDto {
   @IsNotEmpty()
   @ApiProperty({
     description: 'The title of load',
@@ -190,11 +206,11 @@ export class CreateLoadDto {
     description: 'The dimesion unit for load',
     example: Dimension_Unit_Names.cm,
   })
-  dimension_unit: Dimension_Unit_Type;
+  dimensionUnit: Dimension_Unit_Type;
 
   @IsNotEmpty()
   @ValidateNested()
-  @Type(() => LoadDimensions) // Needed for nested validation
+  @Type(() => LoadDimensions)
   @ApiProperty({
     description: 'The dimensions of the load',
     example: {
@@ -213,6 +229,82 @@ export class CreateLoadDto {
   })
   vehicleType: Vehicle_Type;
 
+  // @IsNotEmpty()
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => LoadLocation)
+  @ApiProperty({
+    description: 'The pickup location details',
+    example: {
+      address: '123 Main St',
+      lat: 31.509635,
+      lng: 74.341322,
+    },
+    nullable: true,
+  })
+  pickupLocation?: LoadLocation | null;
+
+  // @IsNotEmpty()
+  @IsOptional()
+  @IsDateString()
+  @IsNotPastDate('pickupDateTime', {
+    message: 'Pickup date and time must not be in the past.',
+  })
+  @ApiProperty({
+    description: 'The pickup date of the load',
+    example: '2024-12-17T12:00:00Z',
+  })
+  pickupDateTime?: string | null;
+
+  // @IsNotEmpty()
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => LoadLocation)
+  @ApiProperty({
+    description: 'The destination location details',
+    example: {
+      address: '123 Main St',
+      lat: 31.474495,
+      lng: 74.402423,
+    },
+    nullable: true,
+  })
+  destinationLocation?: LoadLocation | null;
+
+  // @IsNotEmpty()
+  @IsOptional()
+  @IsDateString()
+  @IsAfterDate('pickupDateTime', {
+    message: 'Arrival date and time must be after pickup date and time.',
+  })
+  @ApiProperty({
+    description: 'The arrival datetime of the load',
+    example: '2025-01-17T12:00:00Z',
+  })
+  arrivalDateTime?: string | null;
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'The status of sub load',
+    example: 'draft',
+  })
+  @IsEnum(LoadStatus, {
+    message: 'Status must be one of: active, in_transit, completed',
+  })
+  status?: LoadStatus;
+
+  @IsOptional()
+  @IsNumber()
+  @ApiProperty({
+    description: 'Order of sub load',
+    example: '1',
+  })
+  order?: number;
+}
+
+export class CreateLoadDto {
+  shipperId?: number;
+
   @IsNumber()
   @ApiProperty({
     description: 'The min budget for load',
@@ -230,51 +322,104 @@ export class CreateLoadDto {
   })
   maxBudget: number;
 
-  @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => LoadLocation) // Needed for nested validation
+  @IsOptional()
+  @IsBoolean()
   @ApiProperty({
-    description: 'The pickup location details',
-    example: {
-      address: '123 Main St',
-      lat: 31.509635,
-      lng: 74.341322,
-    },
+    description: 'Is this load is private',
+    example: false,
   })
-  pickupLocation: LoadLocation;
+  isPrivate?: boolean;
 
-  @IsNotEmpty()
-  @IsDateString()
-  @IsNotPastDate('pickupDateTime', {
-    message: 'Pickup date and time must not be in the past.',
-  })
+  @IsOptional()
+  @IsBoolean()
   @ApiProperty({
-    description: 'The pickup date of the load',
-    example: '2024-12-17T12:00:00Z',
+    description: 'Is this load is private',
+    example: false,
   })
-  pickupDateTime: string;
+  isContractMade?: boolean;
 
-  @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => LoadLocation) // Needed for nested validation
+  @IsOptional()
   @ApiProperty({
-    description: 'The destination location details',
-    example: {
-      address: '123 Main St',
-      lat: 31.474495,
-      lng: 74.402423,
-    },
+    description: 'The status of load',
+    example: 'draft',
   })
-  destinationLocation: LoadLocation;
+  @IsEnum(LoadStatus, {
+    message: 'Status must be one of: active, in_transit, completed',
+  })
+  status?: LoadStatus;
 
-  @IsNotEmpty()
-  @IsDateString()
-  @IsAfterDate('pickupDateTime', {
-    message: 'Arrival date and time must be after pickup date and time.',
-  })
+  @IsOptional()
   @ApiProperty({
-    description: 'The arrival datetime of the load',
-    example: '2025-01-17T12:00:00Z',
+    description: 'Load details created by',
+    example: '1',
   })
-  arrivalDateTime: string;
+  createdBy?: number;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => CreateLoadDetailsDto)
+  @ApiProperty({
+    type: [CreateLoadDetailsDto],
+    description: 'An array of sub loads to be created',
+    example: [
+      {
+        title: 'Load 1',
+        loadUid: 'Load_12345',
+        loadType: 'Briefly describe your load',
+        weightUnit: Weight_Unit_Names.kg,
+        weight: 50,
+        dimensionUnit: Dimension_Unit_Names.cm,
+        dimensions: {
+          length: 10,
+          width: 10,
+          height: 5,
+        },
+        vehicleType: Vehicle_Type_Names.DRY_VAN,
+        pickupLocation: {
+          address: '123 Main St',
+          lat: 31.509635,
+          lng: 74.341322,
+        },
+        pickupDateTime: '2024-12-17T12:00:00Z',
+        destinationLocation: {
+          address: '456 Other St',
+          lat: 31.474495,
+          lng: 74.402423,
+        },
+        arrivalDateTime: '2025-01-17T12:00:00Z',
+        status: 'draft',
+        order: 1,
+      },
+      {
+        title: 'Load 2',
+        loadUid: 'Load_12346',
+        loadType: 'Another load description',
+        weightUnit: Weight_Unit_Names.lb,
+        weight: 100,
+        dimensionUnit: Dimension_Unit_Names.in,
+        dimensions: {
+          length: 20,
+          width: 20,
+          height: 10,
+        },
+        vehicleType: Vehicle_Type_Names.FLATBED_TRUCK,
+        pickupLocation: {
+          address: '789 Another St',
+          lat: 30.12345,
+          lng: 74.98765,
+        },
+        pickupDateTime: '2024-12-20T12:00:00Z',
+        destinationLocation: {
+          address: '101 Main St',
+          lat: 31.12345,
+          lng: 74.6789,
+        },
+        arrivalDateTime: '2025-01-20T12:00:00Z',
+        status: 'draft',
+        order: 2,
+      },
+    ],
+  })
+  loadDetails: CreateLoadDetailsDto[];
 }

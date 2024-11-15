@@ -8,11 +8,20 @@ import {
   Delete,
   Request,
   UseGuards,
+  Query,
+  Req,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { LoadService } from './load.service';
 import { CreateLoadDto } from './dto/create-load.dto';
 import { UpdateLoadDto } from './dto/update-load.dto';
-import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { ShipperGuard } from '../guard/guards/shipper.guard';
 import { JwtAuthGuard } from '../guard/guards/jwt-auth.guard';
 import { PermissionsDecorator } from '@app/shared-lib/decorators/permissions.decorator';
@@ -20,7 +29,7 @@ import { Module_Names } from '@app/permission-management/permission-module-keys'
 import { LoadsModuleKeys } from '@app/permission-management/permission-module-keys/modules/loads';
 import { responseWrapper } from '@app/shared-lib';
 import { CreateLoadResponseType } from './entities/create-load.response';
-import { ListLoadResponseType } from './entities/list-load.response';
+import { PaginatedLoadResponseEntity } from './entities/list-load.response';
 import { GetLoadResponseType } from './entities/get-load.response';
 import { UpdateLoadResponseType } from './entities/update-load.response';
 import { DeleteLoadResponseType } from './entities/delete-load.response';
@@ -30,6 +39,7 @@ import { getAssociationId } from '@app/permission-management/get-association';
 import { SearchLoadsDto } from './dto/search-loads';
 import { CarrierGuard } from '../guard/guards/carrier.guard';
 import { DataforLoadPostingResponseType } from './entities/data-for-load-posting.response';
+import { LoadStatus } from '@app/load-managment/enums/load-statuses';
 @ApiBearerAuth()
 @ApiTags('Loads')
 @Controller('loads')
@@ -58,82 +68,45 @@ export class LoadController {
     }
   }
 
-  @Post('/')
-  @UseGuards(JwtAuthGuard, ShipperGuard)
-  @PermissionsDecorator({
-    module: Module_Names.Loads,
-    key: LoadsModuleKeys.CREATE_LOAD,
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Load created',
-    type: CreateLoadResponseType,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request',
-  })
-  async create(@Request() req, @Body() input: CreateLoadDto) {
-    try {
-      const user = req.user as UserTokenPayloadType;
-      const output = await this.loadService.create(input, {
-        shipperId: getAssociationId(user),
-        createdBy: user.id,
-      });
-      return responseWrapper({
-        data: output,
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
   @Get('/')
   @UseGuards(JwtAuthGuard, ShipperGuard)
   @PermissionsDecorator({
     module: Module_Names.Loads,
     key: LoadsModuleKeys.LIST_LOADS,
   })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    example: 'in_transit',
+  })
   @ApiResponse({
     status: 200,
     description: 'Loads received.',
-    type: ListLoadResponseType,
+    type: PaginatedLoadResponseEntity,
   })
   @ApiResponse({
     status: 400,
     description: 'Bad Request',
   })
-  async findAll(@Request() req) {
+  async findAll(
+    @Request() req,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('status') status: LoadStatus | null,
+  ) {
     try {
       const user = req.user as UserTokenPayloadType;
       const shipperId = getAssociationId(user);
-      const output = await this.loadService.findAll(shipperId);
-      return responseWrapper({
-        data: output,
+      const output = await this.loadService.findAll({
+        shipperId,
+        page,
+        limit,
+        status,
       });
-    } catch (error) {
-      throw error;
-    }
-  }
 
-  @Post('/search')
-  @UseGuards(JwtAuthGuard, CarrierGuard)
-  @PermissionsDecorator({
-    module: Module_Names.Loads,
-    key: LoadsModuleKeys.LIST_LOADS,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Loads received.',
-    type: ListLoadResponseType,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request',
-  })
-  async searchLoads(@Request() req, @Body() input: SearchLoadsDto) {
-    try {
-      const output = await this.loadService.searchLoads(input);
       return responseWrapper({
         data: output,
       });
@@ -169,12 +142,95 @@ export class LoadController {
     }
   }
 
-  @Patch('/')
+  @Get('/check/draft')
+  @UseGuards(JwtAuthGuard, CommonPermissionGuard)
+  @PermissionsDecorator({
+    module: Module_Names.Loads,
+    key: LoadsModuleKeys.VIEW_LOAD,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Load received.',
+    type: GetLoadResponseType,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async checkDraft(@Request() req) {
+    try {
+      const user = req.user as UserTokenPayloadType;
+      const shipperId = getAssociationId(user);
+      const output = await this.loadService.checkDraft(shipperId);
+      return responseWrapper({
+        data: output,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Post('/')
+  @UseGuards(JwtAuthGuard, ShipperGuard)
+  @PermissionsDecorator({
+    module: Module_Names.Loads,
+    key: LoadsModuleKeys.CREATE_LOAD,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Load created',
+    type: CreateLoadResponseType,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async create(@Request() req, @Body() data: CreateLoadDto) {
+    try {
+      const user = req.user as UserTokenPayloadType;
+      const output = await this.loadService.create(data, {
+        shipperId: getAssociationId(user),
+        createdBy: user.id,
+      });
+      return responseWrapper({ data: output });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Patch('/load/post/:id')
+  @UseGuards(JwtAuthGuard, ShipperGuard)
+  @ApiParam({ name: 'id', type: Number, description: 'id of load' })
+  @PermissionsDecorator({
+    module: Module_Names.Loads,
+    key: LoadsModuleKeys.UPDATE_LOAD,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Load posted',
+    type: Object,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async postLoad(@Request() req, @Param('id', ParseIntPipe) loadId: number) {
+    try {
+      const user = req.user as UserTokenPayloadType;
+      const output = await this.loadService.postLoad(loadId);
+      return responseWrapper({ data: output });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Patch('/:id')
   @UseGuards(JwtAuthGuard, ShipperGuard)
   @PermissionsDecorator({
     module: Module_Names.Loads,
     key: LoadsModuleKeys.UPDATE_LOAD,
   })
+  @ApiParam({ name: 'id', type: Number, description: 'id of load' })
   @ApiResponse({
     status: 200,
     description: 'Load updated',
@@ -184,16 +240,15 @@ export class LoadController {
     status: 400,
     description: 'Bad Request',
   })
-  async update(@Request() req, @Body() input: UpdateLoadDto) {
+  async update(
+    @Request() req,
+    @Param('id', ParseIntPipe) loadId: number,
+    @Body() input: UpdateLoadDto,
+  ) {
     try {
       const user = req.user as UserTokenPayloadType;
-      const output = await this.loadService.update(
-        input,
-        getAssociationId(user),
-      );
-      return responseWrapper({
-        data: output,
-      });
+      const output = await this.loadService.update(input, loadId);
+      return responseWrapper({ data: output });
     } catch (error) {
       throw error;
     }
@@ -218,7 +273,7 @@ export class LoadController {
   async delete(@Request() req, @Param('id') id: number) {
     try {
       const user = req.user as UserTokenPayloadType;
-      const output = await this.loadService.remove(id, getAssociationId(user));
+      const output = await this.loadService.remove(id);
       return responseWrapper({
         data: output,
       });
@@ -226,4 +281,30 @@ export class LoadController {
       throw error;
     }
   }
+
+  // @Post('/search')
+  // @UseGuards(JwtAuthGuard, CarrierGuard)
+  // @PermissionsDecorator({
+  //   module: Module_Names.Loads,
+  //   key: LoadsModuleKeys.LIST_LOADS,
+  // })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Loads received.',
+  //   type: ListLoadResponseType,
+  // })
+  // @ApiResponse({
+  //   status: 400,
+  //   description: 'Bad Request',
+  // })
+  // async searchLoads(@Request() req, @Body() input: SearchLoadsDto) {
+  //   try {
+  //     const output = await this.loadService.searchLoads(input);
+  //     return responseWrapper({
+  //       data: output,
+  //     });
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 }

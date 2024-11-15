@@ -12,3 +12,20 @@ export class ListLoadResponseType extends JsonResponseClass<
   })
   data: LoadResponseEntity[];
 }
+
+export class PaginatedLoadResponseEntity {
+  @ApiProperty({ type: [LoadResponseEntity] })
+  data: LoadResponseEntity[];
+
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  limit: number;
+
+  @ApiProperty()
+  totalPages: number;
+}

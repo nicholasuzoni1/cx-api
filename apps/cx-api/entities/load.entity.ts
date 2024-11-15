@@ -6,10 +6,12 @@ import {
   DeleteDateColumn,
   UpdateDateColumn,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 import { BidEntity } from './bid.entity';
 import { ContractEntity } from './contract.entity';
-import { LoadStatusEntity } from './load-status.entity';
+import { LoadDetailsEntity } from './load-details.entity';
+import { LoadStatus } from '@app/load-managment/enums/load-statuses';
 
 @Entity('loads')
 export class LoadEntity {
@@ -17,55 +19,13 @@ export class LoadEntity {
   id: number;
 
   @Column()
-  title: string;
-
-  @Column()
-  load_type: string;
-
-  @Column()
-  weight_unit: string;
-
-  @Column()
-  weight: number;
-
-  @Column()
-  dimension_unit: string;
-
-  @Column('json')
-  dimensions: {
-    length: number;
-    width: number;
-    height: number;
-  };
-
-  @Column()
-  vehicle_type: string;
+  shipper_id: number;
 
   @Column()
   min_budget: number;
 
   @Column()
   max_budget: number;
-
-  @Column('json')
-  pickup_location: {
-    address: string;
-    lat: number;
-    lng: number;
-  };
-
-  @Column({ type: 'timestamptz' })
-  pickup_datetime: Date;
-
-  @Column('json')
-  destination_location: {
-    address: string;
-    lat: number;
-    lng: number;
-  };
-
-  @Column({ type: 'timestamptz' })
-  arrival_datetime: Date;
 
   @Column({
     default: false,
@@ -77,20 +37,25 @@ export class LoadEntity {
   })
   is_contract_made: boolean;
 
-  @Column()
-  created_by: number;
-
-  @Column()
-  shipper_id: number;
+  @Column({ default: LoadStatus.DRAFT })
+  status?: string;
 
   @OneToMany(() => BidEntity, (bid) => bid.load)
   bids: BidEntity[];
 
-  @OneToMany(() => ContractEntity, (contract) => contract.load)
-  contracts: ContractEntity[];
+  @OneToOne(() => ContractEntity, (contract) => contract.load)
+  contract: ContractEntity;
 
-  @OneToMany(() => LoadStatusEntity, (bid) => bid.load)
-  statuses: LoadStatusEntity[];
+  // @OneToMany(() => LoadStatusEntity, (statuses) => statuses.load)
+  // statuses: LoadStatusEntity[];
+
+  @OneToMany(() => LoadDetailsEntity, (loadDetails) => loadDetails.load, {
+    cascade: true,
+  })
+  loadDetails: LoadDetailsEntity[];
+
+  @Column()
+  created_by: number;
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;

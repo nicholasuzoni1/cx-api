@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateLoadDto, LoadAdditionalData } from './dto/create-load.dto';
 import { UpdateLoadDto } from './dto/update-load.dto';
 import { UserEntity } from 'apps/cx-api/entities/user.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LoadEntity } from 'apps/cx-api/entities/load.entity';
 import {
@@ -17,6 +17,8 @@ import { Vehicle_Type_NamedDescriptions } from '@app/load-managment/vehicle-type
 import { Weight_Unit_List } from '@app/load-managment/weight-types';
 import { DataforLoadPostingResponseEntity } from './entities/data-for-load-posting.response';
 import { Contract_Names } from '@app/load-managment/contract-types';
+import { LoadDetailsEntity } from 'apps/cx-api/entities/load-details.entity';
+import { LoadStatus } from '@app/load-managment/enums/load-statuses';
 
 @Injectable()
 export class LoadService {
@@ -25,8 +27,10 @@ export class LoadService {
     private readonly userEntity: Repository<UserEntity>,
     @InjectRepository(LoadEntity)
     private readonly loadEntity: Repository<LoadEntity>,
+    @InjectRepository(LoadDetailsEntity)
+    private readonly loadDetailsEntity: Repository<LoadDetailsEntity>,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   getDataforLoadPosting() {
     try {
@@ -41,50 +45,139 @@ export class LoadService {
     }
   }
 
-  async create(input: CreateLoadDto, additionalData: LoadAdditionalData) {
+  async create(load: CreateLoadDto, additionalData: LoadAdditionalData) {
     try {
-      const user = await this.userEntity.findOne({
-        where: {
-          id: additionalData.createdBy,
-        },
-      });
+      const parsedLoad = LoadConverter.toCreateInput(load, additionalData);
+      const newLoad = await this.loadEntity.save(parsedLoad);
 
-      if (!user) {
-        throw new AlreadyExistsErrorHttp(LangKeys.AccountAlreadyExistsKey);
+      return LoadConverter.fromTable(newLoad);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findAll({
+    shipperId,
+    page,
+    limit,
+    status,
+  }: {
+    shipperId: number;
+    page: number;
+    limit: number;
+    status: LoadStatus;
+  }) {
+    try {
+      const conditions = {
+        shipper_id: shipperId,
+      };
+
+      if (status) {
+        conditions['status'] = status;
       }
 
-      let newLoad = this.loadEntity.create();
+      const [loads, total] = await this.loadEntity.findAndCount({
+        where: conditions,
+        relations: ['bids', 'contract', 'loadDetails'],
+        skip: (page - 1) * limit,
+        take: limit,
+      });
 
-      newLoad = LoadConverter.toCreateInput(newLoad, input, additionalData);
+      const output = loads.map((l) => {
+        return LoadConverter.fromTable(l);
+      });
 
-      const savedLoad = await this.loadEntity.save(newLoad);
+      return {
+        data: output,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
 
-      const output = LoadConverter.fromTable(savedLoad);
+  async remove(id: number) {
+    try {
+      await this.loadEntity.softDelete(id);
+      await this.loadDetailsEntity.softDelete({ load: { id } });
+
+      const output = {};
       return output;
     } catch (error) {
       throw error;
     }
   }
 
-  async findAll(id: number) {
+  async findOne(id: number) {
     try {
-      const loads = await this.loadEntity.find({
-        where: {
-          shipper_id: id,
-        },
-        relations: ['bids', 'contract', 'statuses'],
+      const load = await this.loadEntity.findOne({
+        where: { id },
+        relations: ['loadDetails'],
       });
 
-      console.log(
-        'Loads',
-        loads.map((l) => l.bids),
+      if (!load) {
+        throw new NotFoundErrorHttp(LangKeys.LoadNotFoundErrorKey);
+      }
+
+      const output = LoadConverter.fromTable(load);
+      return output;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async update(input: UpdateLoadDto, loadId: number) {
+    try {
+      const updateLoad = LoadConverter.toUpdateInput(input);
+
+      const { loadDetails, ...load } = updateLoad;
+
+      const existingLoadDetails = await this.loadDetailsEntity.find({
+        where: {
+          loadId,
+        },
+        select: ['load_uid'],
+      });
+
+      const existingLoadUids = existingLoadDetails.map(
+        (detail) => detail.load_uid,
       );
 
-      const output = loads.map((l) => {
-        return LoadConverter.fromTable(l);
+      const newLoadUids = loadDetails.map(
+        (loadDetails) => loadDetails?.load_uid,
+      );
+
+      const loadUidsToRemove = existingLoadUids.filter(
+        (uid) => !newLoadUids.includes(uid),
+      );
+
+      await this.loadEntity.update({ id: loadId }, load);
+
+      // Upcerting the load details
+      const promisesArray = (loadDetails || []).map((loadDetail) => {
+        if (!existingLoadUids.includes(loadDetail.load_uid)) {
+          return this.loadDetailsEntity.save(loadDetail);
+        } else {
+          return this.loadDetailsEntity.update(
+            { id: loadDetail.id },
+            { ...loadDetail },
+          );
+        }
       });
 
-      return output;
+      // Removing the discarded load details
+      promisesArray.push(
+        ...loadUidsToRemove.map((uid) => {
+          return this.loadDetailsEntity.softDelete({ load_uid: uid });
+        }),
+      );
+
+      await Promise.all(promisesArray);
+
+      return await this.findOne(loadId);
     } catch (error) {
       throw error;
     }
@@ -170,66 +263,79 @@ export class LoadService {
     }
   }
 
-  async findOne(id: number) {
+  async checkDraft(shipperId: number) {
     try {
-      const load = await this.loadEntity.findOne({
+      const draftLoad = await this.loadEntity.findOne({
         where: {
-          id: id,
+          shipper_id: shipperId,
+          status: 'draft',
         },
+        relations: ['loadDetails'],
       });
 
-      if (!load) {
-        throw new NotFoundErrorHttp(LangKeys.LoadNotFoundErrorKey);
-      }
-
-      const output = LoadConverter.fromTable(load);
+      const output = LoadConverter.fromTable(draftLoad);
       return output;
     } catch (error) {
       throw error;
     }
   }
 
-  async update(input: UpdateLoadDto, associatedTo: number) {
+  async postLoad(loadId: number) {
     try {
-      let load = await this.loadEntity.findOne({
-        where: {
-          id: input.id,
-          shipper_id: associatedTo,
-        },
-      });
+      const loadDetailsIds = [];
 
-      if (!load) {
-        throw new NotFoundErrorHttp(LangKeys.LoadNotFoundErrorKey);
-      }
-
-      load = LoadConverter.toUpdateInput(load, input);
-
-      const savedLoad = await this.loadEntity.save(load);
-
-      const output = LoadConverter.fromTable(savedLoad);
-      return output;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async remove(id: number, associatedTo: number) {
-    try {
       const load = await this.loadEntity.findOne({
         where: {
-          id: id,
-          shipper_id: associatedTo,
+          id: loadId,
         },
+        relations: ['loadDetails'],
       });
 
-      if (!load) {
-        throw new NotFoundErrorHttp(LangKeys.LoadNotFoundErrorKey);
+      const loadDetails = load?.loadDetails || [];
+
+      // Check load details
+      if (!loadDetails.length) {
+        // Need to update
+        throw new NotFoundErrorHttp(LangKeys.LoadDetailsNotComplete);
       }
 
-      this.loadEntity.softDelete(load);
+      // Check load budget
+      if (!load?.min_budget || !load?.max_budget) {
+        // Need to update
+        throw new NotFoundErrorHttp(LangKeys.LoadDetailsNotComplete);
+      }
 
-      const output = {};
-      return output;
+      // Check location details in load details
+      for (const loadDetail of loadDetails) {
+        const {
+          pickup_location,
+          destination_location,
+          pickup_datetime,
+          arrival_datetime,
+          id,
+        } = loadDetail;
+
+        if (
+          !pickup_location?.address ||
+          !destination_location?.address ||
+          !pickup_datetime ||
+          !arrival_datetime
+        ) {
+          throw new NotFoundErrorHttp(LangKeys.LoadDetailsNotComplete);
+        }
+
+        loadDetailsIds.push(id);
+      }
+
+      await Promise.all([
+        this.loadEntity.update({ id: loadId }, { status: LoadStatus.ACTIVE }),
+        this.loadDetailsEntity.update(
+          { id: In(loadDetailsIds) },
+          { status: LoadStatus.ACTIVE },
+        ),
+      ]);
+
+      return {};
     } catch (error) {
       throw error;
     }
