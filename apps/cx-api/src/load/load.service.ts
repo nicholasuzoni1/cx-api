@@ -60,16 +60,24 @@ export class LoadService {
     shipperId,
     page,
     limit,
+    status,
   }: {
     shipperId: number;
     page: number;
     limit: number;
+    status: LoadStatus;
   }) {
     try {
+      const conditions = {
+        shipper_id: shipperId,
+      };
+
+      if (status) {
+        conditions['status'] = status;
+      }
+
       const [loads, total] = await this.loadEntity.findAndCount({
-        where: {
-          shipper_id: shipperId,
-        },
+        where: conditions,
         relations: ['bids', 'contract', 'loadDetails'],
         skip: (page - 1) * limit,
         take: limit,
@@ -138,8 +146,17 @@ export class LoadService {
         (detail) => detail.load_uid,
       );
 
+      const newLoadUids = loadDetails.map(
+        (loadDetails) => loadDetails?.load_uid,
+      );
+
+      const loadUidsToRemove = existingLoadUids.filter(
+        (uid) => !newLoadUids.includes(uid),
+      );
+
       await this.loadEntity.update({ id: loadId }, load);
 
+      // Upcerting the load details
       const promisesArray = (loadDetails || []).map((loadDetail) => {
         if (!existingLoadUids.includes(loadDetail.load_uid)) {
           return this.loadDetailsEntity.save(loadDetail);
@@ -150,6 +167,13 @@ export class LoadService {
           );
         }
       });
+
+      // Removing the discarded load details
+      promisesArray.push(
+        ...loadUidsToRemove.map((uid) => {
+          return this.loadDetailsEntity.softDelete({ load_uid: uid });
+        }),
+      );
 
       await Promise.all(promisesArray);
 

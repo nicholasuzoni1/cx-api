@@ -39,6 +39,7 @@ import { getAssociationId } from '@app/permission-management/get-association';
 import { SearchLoadsDto } from './dto/search-loads';
 import { CarrierGuard } from '../guard/guards/carrier.guard';
 import { DataforLoadPostingResponseType } from './entities/data-for-load-posting.response';
+import { LoadStatus } from '@app/load-managment/enums/load-statuses';
 @ApiBearerAuth()
 @ApiTags('Loads')
 @Controller('loads')
@@ -75,6 +76,12 @@ export class LoadController {
   })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    example: 'in_transit',
+  })
   @ApiResponse({
     status: 200,
     description: 'Loads received.',
@@ -88,11 +95,17 @@ export class LoadController {
     @Request() req,
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('status') status: LoadStatus | null,
   ) {
     try {
       const user = req.user as UserTokenPayloadType;
       const shipperId = getAssociationId(user);
-      const output = await this.loadService.findAll({ shipperId, page, limit });
+      const output = await this.loadService.findAll({
+        shipperId,
+        page,
+        limit,
+        status,
+      });
 
       return responseWrapper({
         data: output,
