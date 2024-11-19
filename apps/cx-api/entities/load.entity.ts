@@ -40,6 +40,20 @@ export class LoadEntity {
   @Column({ default: LoadStatus.DRAFT })
   status?: string;
 
+  @Column('json', { nullable: true })
+  route_start_location?: {
+    address: string;
+    lat: number;
+    lng: number;
+  };
+
+  @Column('json', { nullable: true })
+  route_end_location?: {
+    address: string;
+    lat: number;
+    lng: number;
+  };
+
   @OneToMany(() => BidEntity, (bid) => bid.load)
   bids: BidEntity[];
 

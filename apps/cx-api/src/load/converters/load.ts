@@ -28,6 +28,30 @@ export class LoadConverter {
     output.status = input?.status;
     output.created_by = additionalData.createdBy;
 
+    if (
+      input?.routeStartLocation?.address &&
+      input?.routeStartLocation?.lat &&
+      input?.routeStartLocation?.lng
+    ) {
+      output.route_start_location = {
+        address: input.routeStartLocation.address,
+        lat: input.routeStartLocation.lat,
+        lng: input.routeStartLocation.lng,
+      };
+    }
+
+    if (
+      input?.routeEndLocation?.address &&
+      input?.routeEndLocation?.lat &&
+      input?.routeEndLocation?.lng
+    ) {
+      output.route_end_location = {
+        address: input.routeEndLocation.address,
+        lat: input.routeEndLocation.lat,
+        lng: input.routeEndLocation.lng,
+      };
+    }
+
     output.loadDetails = input.loadDetails.map(
       (input: CreateLoadDetailsDto) => {
         const output = new LoadDetailsEntity();
@@ -103,6 +127,28 @@ export class LoadConverter {
     output.updatedAt = res?.updated_at.toISOString();
     output.deletedAt = res?.deleted_at?.toISOString();
 
+    output.routeStartLocation =
+      res?.route_start_location?.address &&
+      res?.route_start_location?.lat &&
+      res?.route_start_location?.lng
+        ? {
+            address: res.route_start_location.address,
+            lat: res.route_start_location.lat,
+            lng: res.route_start_location.lng,
+          }
+        : null;
+
+    output.routeEndLocation =
+      res?.route_end_location?.address &&
+      res?.route_end_location?.lat &&
+      res?.route_end_location?.lng
+        ? {
+            address: res.route_end_location.address,
+            lat: res.route_end_location.lat,
+            lng: res.route_end_location.lng,
+          }
+        : null;
+
     output.loadDetails = (res?.loadDetails || []).map(
       (subLoad: LoadDetailsEntity) => {
         const output = new LoadDetailsResponseEntity();
@@ -173,6 +219,30 @@ export class LoadConverter {
     output.is_private = input?.isPrivate || false;
     output.is_contract_made = input?.isContractMade || false;
     output.status = input?.status;
+
+    if (
+      input?.routeStartLocation?.address &&
+      input?.routeStartLocation?.lat &&
+      input?.routeStartLocation?.lng
+    ) {
+      output.route_start_location = {
+        address: input.routeStartLocation.address,
+        lat: input.routeStartLocation.lat,
+        lng: input.routeStartLocation.lng,
+      };
+    }
+
+    if (
+      input?.routeEndLocation?.address &&
+      input?.routeEndLocation?.lat &&
+      input?.routeEndLocation?.lng
+    ) {
+      output.route_end_location = {
+        address: input.routeEndLocation.address,
+        lat: input.routeEndLocation.lat,
+        lng: input.routeEndLocation.lng,
+      };
+    }
 
     output.loadDetails = input?.loadDetails.map(
       (input: UpdateLoadDetailDto) => {

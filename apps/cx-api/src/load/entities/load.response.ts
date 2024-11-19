@@ -212,6 +212,26 @@ export class LoadResponseEntity {
   deletedAt: string;
 
   @ApiProperty({
+    description: 'The route start location details',
+    example: {
+      address: '123 Main St',
+      lat: 31.509635,
+      lng: 74.341322,
+    },
+  })
+  routeStartLocation: LoadLocationResponseEntity;
+
+  @ApiProperty({
+    description: 'The route end location details',
+    example: {
+      address: '123 Main St',
+      lat: 31.509635,
+      lng: 74.341322,
+    },
+  })
+  routeEndLocation: LoadLocationResponseEntity;
+
+  @ApiProperty({
     type: [LoadDetailsResponseEntity],
     description: 'An array of sub loads to be created',
     example: [
