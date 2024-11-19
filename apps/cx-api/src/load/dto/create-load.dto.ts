@@ -355,6 +355,34 @@ export class CreateLoadDto {
   })
   createdBy?: number;
 
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => LoadLocation)
+  @ApiProperty({
+    description: 'The route pickup location details',
+    example: {
+      address: '123 Main St',
+      lat: 31.474495,
+      lng: 74.402423,
+    },
+    nullable: true,
+  })
+  routeStartLocation?: LoadLocation | null;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => LoadLocation)
+  @ApiProperty({
+    description: 'The route pickup location details',
+    example: {
+      address: '123 Main St',
+      lat: 31.474495,
+      lng: 74.402423,
+    },
+    nullable: true,
+  })
+  routeEndLocation?: LoadLocation | null;
+
   @IsArray()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
