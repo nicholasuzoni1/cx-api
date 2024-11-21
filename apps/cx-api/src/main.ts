@@ -100,7 +100,7 @@ async function bootstrap() {
   const seederService = app.get(SeederService);
 
   // Run the seeder before starting the app
-  await seederService.seed();
+  // await seederService.seed();
 
   const appPort = process.env.HTTP_PORT || 3000;
 
