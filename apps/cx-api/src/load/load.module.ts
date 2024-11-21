@@ -13,11 +13,14 @@ import { LoadTypeEntity } from 'apps/cx-api/entities/load-type.entity';
 import { VehicleLoadTypeEntity } from 'apps/cx-api/entities/vehicle-load-type.entity';
 import { CostEstimationModule } from '../cost-estimation/cost-estimation.module';
 import { CostEstimationService } from '../cost-estimation/cost-estimation.service';
+import { MapModule } from '../map/map.module';
+import { MapService } from '../map/map.service';
 
 @Module({
   imports: [
     GuardModule,
     CostEstimationModule,
+    MapModule,
     TypeOrmModule.forFeature([
       UserEntity,
       LoadEntity,
@@ -30,6 +33,6 @@ import { CostEstimationService } from '../cost-estimation/cost-estimation.servic
     ]),
   ],
   controllers: [LoadController],
-  providers: [LoadService, CostEstimationService],
+  providers: [LoadService, CostEstimationService, MapService],
 })
 export class LoadModule {}

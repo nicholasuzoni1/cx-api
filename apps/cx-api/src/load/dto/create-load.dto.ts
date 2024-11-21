@@ -51,7 +51,7 @@ class LoadDimensions {
   height: number;
 }
 
-class LoadLocation {
+export class LoadLocation {
   //@IsNotEmpty()
   @IsOptional()
   @IsString()

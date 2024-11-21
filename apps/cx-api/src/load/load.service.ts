@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { CreateLoadDto, LoadAdditionalData } from './dto/create-load.dto';
 import { UpdateLoadDto } from './dto/update-load.dto';
 import { Repository, In } from 'typeorm';
@@ -18,6 +18,7 @@ import { VehicleTypeEntity } from 'apps/cx-api/entities/vehicle-type.entity';
 import { Vehicle_Type_NamedDescriptions } from '@app/load-managment/vehicle-types';
 import { CostEstimationService } from '../cost-estimation/cost-estimation.service';
 import { LoadResponseEntity } from './entities/load.response';
+import { MapService } from '../map/map.service';
 
 @Injectable()
 export class LoadService {
@@ -29,6 +30,7 @@ export class LoadService {
     @InjectRepository(VehicleTypeEntity)
     private readonly vehicleTypesEntity: Repository<VehicleTypeEntity>,
     private readonly costEstimationService: CostEstimationService,
+    private readonly mapService: MapService,
   ) {}
 
   async getDataforLoadPosting() {
@@ -198,6 +200,23 @@ export class LoadService {
 
       const { loadDetails, ...load } = updateLoad;
 
+      // Adding milage values into the load details
+      const loadDetailsWithMilage = await Promise.all(
+        loadDetails.map(async (loadDetails) => {
+          const origin = loadDetails?.pickup_location;
+          const destination = loadDetails?.destination_location;
+
+          const milage = await this.mapService.getMilageDetails(
+            origin,
+            destination,
+          );
+
+          loadDetails.milage = String(milage);
+
+          return loadDetails;
+        }),
+      );
+
       const existingLoadDetails = await this.loadDetailsEntity.find({
         where: {
           loadId,
@@ -209,7 +228,7 @@ export class LoadService {
         (detail) => detail.load_uid,
       );
 
-      const newLoadUids = loadDetails.map(
+      const newLoadUids = loadDetailsWithMilage.map(
         (loadDetails) => loadDetails?.load_uid,
       );
 
@@ -220,7 +239,7 @@ export class LoadService {
       await this.loadEntity.update({ id: loadId }, load);
 
       // Upcerting the load details
-      const promisesArray = (loadDetails || []).map((loadDetail) => {
+      const promisesArray = (loadDetailsWithMilage || []).map((loadDetail) => {
         if (!existingLoadUids.includes(loadDetail.load_uid)) {
           return this.loadDetailsEntity.save(loadDetail);
         } else {
