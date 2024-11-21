@@ -1,56 +1,65 @@
 import { Injectable } from '@nestjs/common';
 import { CreateLoadDto, LoadAdditionalData } from './dto/create-load.dto';
 import { UpdateLoadDto } from './dto/update-load.dto';
-import { UserEntity } from 'apps/cx-api/entities/user.entity';
-import { DataSource, Repository, In } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LoadEntity } from 'apps/cx-api/entities/load.entity';
-import {
-  AlreadyExistsErrorHttp,
-  NotFoundErrorHttp,
-} from '@app/shared-lib/http-errors';
+import { NotFoundErrorHttp } from '@app/shared-lib/http-errors';
 import { LangKeys } from '@app/lang-lib/lang-keys';
 import { LoadConverter } from './converters/load';
+import { VehicleTypeConverter } from './converters/vehicle-types';
 import { SearchLoadsDto } from './dto/search-loads';
 import { Dimension_Unit_List } from '@app/load-managment/dimension-types';
-import { Vehicle_Type_NamedDescriptions } from '@app/load-managment/vehicle-types';
 import { Weight_Unit_List } from '@app/load-managment/weight-types';
 import { DataforLoadPostingResponseEntity } from './entities/data-for-load-posting.response';
-import { Contract_Names } from '@app/load-managment/contract-types';
 import { LoadDetailsEntity } from 'apps/cx-api/entities/load-details.entity';
 import { LoadStatus } from '@app/load-managment/enums/load-statuses';
+import { VehicleTypeEntity } from 'apps/cx-api/entities/vehicle-type.entity';
+import { Vehicle_Type_NamedDescriptions } from '@app/load-managment/vehicle-types';
+import { CostEstimationService } from '../cost-estimation/cost-estimation.service';
+import { LoadResponseEntity } from './entities/load.response';
 
 @Injectable()
 export class LoadService {
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userEntity: Repository<UserEntity>,
     @InjectRepository(LoadEntity)
     private readonly loadEntity: Repository<LoadEntity>,
     @InjectRepository(LoadDetailsEntity)
     private readonly loadDetailsEntity: Repository<LoadDetailsEntity>,
-    private readonly dataSource: DataSource,
+    @InjectRepository(VehicleTypeEntity)
+    private readonly vehicleTypesEntity: Repository<VehicleTypeEntity>,
+    private readonly costEstimationService: CostEstimationService,
   ) {}
 
-  getDataforLoadPosting() {
+  async getDataforLoadPosting() {
     try {
       const output = new DataforLoadPostingResponseEntity();
+
+      const vehicleTypesWithLoad = await this.vehicleTypesEntity
+        .createQueryBuilder('vehicle_type')
+        .leftJoinAndSelect('vehicle_type.vehicleLoadTypes', 'vehicleLoadType')
+        .leftJoinAndSelect('vehicleLoadType.load_type', 'loadType')
+        .select([
+          'vehicle_type.id',
+          'vehicle_type.name',
+          'vehicle_type.description',
+          'loadType.id',
+          'loadType.name',
+          'loadType.description',
+          'vehicleLoadType.rate_per_mile',
+        ])
+        .getMany();
+
       output.dimensionUnits = Dimension_Unit_List as string[];
       output.weightUnits = Weight_Unit_List as string[];
       output.vehicleTypes = Vehicle_Type_NamedDescriptions;
 
+      output.vehicleTypesWithLoad = vehicleTypesWithLoad.map(
+        (vehicleTypeWithLoad) =>
+          VehicleTypeConverter.fromTable(vehicleTypeWithLoad),
+      );
+
       return output;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async create(load: CreateLoadDto, additionalData: LoadAdditionalData) {
-    try {
-      const parsedLoad = LoadConverter.toCreateInput(load, additionalData);
-      const newLoad = await this.loadEntity.save(parsedLoad);
-
-      return LoadConverter.fromTable(newLoad);
     } catch (error) {
       throw error;
     }
@@ -78,14 +87,24 @@ export class LoadService {
 
       const [loads, total] = await this.loadEntity.findAndCount({
         where: conditions,
-        relations: ['bids', 'contract', 'loadDetails'],
+        relations: [
+          'bids',
+          'contract',
+          'loadDetails',
+          'loadDetails.vehicle_type',
+          'loadDetails.load_type',
+        ],
         skip: (page - 1) * limit,
         take: limit,
       });
 
-      const output = loads.map((l) => {
-        return LoadConverter.fromTable(l);
-      });
+      const output = await Promise.all(
+        loads.map(async (l) => {
+          const output = LoadConverter.fromTable(l);
+          await this.mapBudgetEstimates(l, output);
+          return output;
+        }),
+      );
 
       return {
         data: output,
@@ -99,23 +118,16 @@ export class LoadService {
     }
   }
 
-  async remove(id: number) {
-    try {
-      await this.loadEntity.softDelete(id);
-      await this.loadDetailsEntity.softDelete({ load: { id } });
-
-      const output = {};
-      return output;
-    } catch (error) {
-      throw error;
-    }
-  }
-
   async findOne(id: number) {
     try {
       const load = await this.loadEntity.findOne({
         where: { id },
-        relations: ['loadDetails'],
+        relations: {
+          loadDetails: {
+            vehicle_type: true,
+            load_type: true,
+          },
+        },
       });
 
       if (!load) {
@@ -123,6 +135,57 @@ export class LoadService {
       }
 
       const output = LoadConverter.fromTable(load);
+
+      await this.mapBudgetEstimates(load, output);
+
+      return output;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async checkDraft(shipperId: number) {
+    try {
+      const draftLoad = await this.loadEntity.findOne({
+        where: {
+          shipper_id: shipperId,
+          status: 'draft',
+        },
+        relations: [
+          'loadDetails',
+          'loadDetails.vehicle_type',
+          'loadDetails.load_type',
+        ],
+      });
+
+      const output = LoadConverter.fromTable(draftLoad);
+
+      await this.mapBudgetEstimates(draftLoad, output);
+
+      return output;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async create(load: CreateLoadDto, additionalData: LoadAdditionalData) {
+    try {
+      const parsedLoad = LoadConverter.toCreateInput(load, additionalData);
+      const newLoad = await this.loadEntity.save(parsedLoad);
+      const newLoadWithRelations = await this.findOne(newLoad?.id);
+
+      return newLoadWithRelations;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async remove(id: number) {
+    try {
+      await this.loadEntity.softDelete(id);
+      await this.loadDetailsEntity.softDelete({ load: { id } });
+
+      const output = {};
       return output;
     } catch (error) {
       throw error;
@@ -177,7 +240,70 @@ export class LoadService {
 
       await Promise.all(promisesArray);
 
-      return await this.findOne(loadId);
+      const loadResponse = await this.findOne(loadId);
+
+      return loadResponse;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async postLoad(loadId: number) {
+    try {
+      const loadDetailsIds = [];
+
+      const load = await this.loadEntity.findOne({
+        where: {
+          id: loadId,
+        },
+        relations: ['loadDetails'],
+      });
+
+      const loadDetails = load?.loadDetails || [];
+
+      // Check load details
+      if (!loadDetails.length) {
+        // Need to update
+        throw new NotFoundErrorHttp(LangKeys.LoadDetailsNotComplete);
+      }
+
+      // Check load budget
+      if (!load?.min_budget || !load?.max_budget) {
+        // Need to update
+        throw new NotFoundErrorHttp(LangKeys.LoadDetailsNotComplete);
+      }
+
+      // Check location details in load details
+      for (const loadDetail of loadDetails) {
+        const {
+          pickup_location,
+          destination_location,
+          pickup_datetime,
+          arrival_datetime,
+          id,
+        } = loadDetail;
+
+        if (
+          !pickup_location?.address ||
+          !destination_location?.address ||
+          !pickup_datetime ||
+          !arrival_datetime
+        ) {
+          throw new NotFoundErrorHttp(LangKeys.LoadDetailsNotComplete);
+        }
+
+        loadDetailsIds.push(id);
+      }
+
+      await Promise.all([
+        this.loadEntity.update({ id: loadId }, { status: LoadStatus.ACTIVE }),
+        this.loadDetailsEntity.update(
+          { id: In(loadDetailsIds) },
+          { status: LoadStatus.ACTIVE },
+        ),
+      ]);
+
+      return {};
     } catch (error) {
       throw error;
     }
@@ -263,81 +389,18 @@ export class LoadService {
     }
   }
 
-  async checkDraft(shipperId: number) {
-    try {
-      const draftLoad = await this.loadEntity.findOne({
-        where: {
-          shipper_id: shipperId,
-          status: 'draft',
-        },
-        relations: ['loadDetails'],
-      });
+  async mapBudgetEstimates(load: LoadEntity, response: LoadResponseEntity) {
+    const budgetEstimates = await this.costEstimationService.estimateCost(load);
 
-      const output = LoadConverter.fromTable(draftLoad);
-      return output;
-    } catch (error) {
-      throw error;
-    }
-  }
+    response.loadDetails = response.loadDetails.map((loadDetail) => {
+      const estimates = budgetEstimates?.budgetEstimatesDivision?.find(
+        (estimate) => estimate?.subLoadId === loadDetail?.id,
+      );
+      loadDetail.estimatedBudget = estimates?.estimatedCost;
 
-  async postLoad(loadId: number) {
-    try {
-      const loadDetailsIds = [];
+      return loadDetail;
+    });
 
-      const load = await this.loadEntity.findOne({
-        where: {
-          id: loadId,
-        },
-        relations: ['loadDetails'],
-      });
-
-      const loadDetails = load?.loadDetails || [];
-
-      // Check load details
-      if (!loadDetails.length) {
-        // Need to update
-        throw new NotFoundErrorHttp(LangKeys.LoadDetailsNotComplete);
-      }
-
-      // Check load budget
-      if (!load?.min_budget || !load?.max_budget) {
-        // Need to update
-        throw new NotFoundErrorHttp(LangKeys.LoadDetailsNotComplete);
-      }
-
-      // Check location details in load details
-      for (const loadDetail of loadDetails) {
-        const {
-          pickup_location,
-          destination_location,
-          pickup_datetime,
-          arrival_datetime,
-          id,
-        } = loadDetail;
-
-        if (
-          !pickup_location?.address ||
-          !destination_location?.address ||
-          !pickup_datetime ||
-          !arrival_datetime
-        ) {
-          throw new NotFoundErrorHttp(LangKeys.LoadDetailsNotComplete);
-        }
-
-        loadDetailsIds.push(id);
-      }
-
-      await Promise.all([
-        this.loadEntity.update({ id: loadId }, { status: LoadStatus.ACTIVE }),
-        this.loadDetailsEntity.update(
-          { id: In(loadDetailsIds) },
-          { status: LoadStatus.ACTIVE },
-        ),
-      ]);
-
-      return {};
-    } catch (error) {
-      throw error;
-    }
+    response.estimatedBudget = budgetEstimates?.totalEstimatedBudget;
   }
 }

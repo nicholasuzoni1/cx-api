@@ -8,6 +8,7 @@ import swaggerUi from 'swagger-ui-express';
 import basicAuth from 'express-basic-auth';
 import { ValidationErrorHttp } from '@app/shared-lib/http-errors';
 import { LangKeys } from '@app/lang-lib/lang-keys';
+import { SeederService } from './seeder/seeder.service';
 
 async function bootstrap() {
   let app: any;
@@ -94,6 +95,12 @@ async function bootstrap() {
       'X-Requested-With, X-HTTP-Method-Override, Observe, Content-Type, Accept, Authorization, lang',
     credentials: true,
   });
+
+  // Get the seeder service from the app context
+  const seederService = app.get(SeederService);
+
+  // Run the seeder before starting the app
+  await seederService.seed();
 
   const appPort = process.env.HTTP_PORT || 3000;
 
