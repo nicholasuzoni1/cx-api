@@ -7,10 +7,14 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToOne,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { LoadEntity } from './load.entity';
 import { LoadStatusEntity } from './load-status.entity';
 import { LoadStatus } from '@app/load-managment/enums/load-statuses';
+import { VehicleTypeEntity } from './vehicle-type.entity';
+import { LoadTypeEntity } from './load-type.entity';
 
 @Entity('load_details')
 export class LoadDetailsEntity {
@@ -22,9 +26,6 @@ export class LoadDetailsEntity {
 
   @Column()
   title: string;
-
-  @Column()
-  load_type: string;
 
   @Column()
   weight_unit: string;
@@ -43,7 +44,10 @@ export class LoadDetailsEntity {
   };
 
   @Column()
-  vehicle_type: string;
+  vehicle_type_id?: number;
+
+  @Column()
+  load_type_id?: number;
 
   @Column('json', { nullable: true })
   pickup_location: {
@@ -74,6 +78,9 @@ export class LoadDetailsEntity {
   @Column()
   loadId?: number;
 
+  @Column({ nullable: true })
+  milage?: string;
+
   // @OneToMany(() => LoadStatusEntity, (statuses) => statuses.subLoad)
   // statuses: LoadStatusEntity[];
 
@@ -82,6 +89,14 @@ export class LoadDetailsEntity {
     onUpdate: 'CASCADE',
   })
   load: LoadEntity;
+
+  @ManyToOne(() => VehicleTypeEntity, (vehicleType) => vehicleType.loadDetail)
+  @JoinColumn({ name: 'vehicle_type_id' })
+  vehicle_type?: VehicleTypeEntity;
+
+  @ManyToOne(() => LoadTypeEntity, (loadType) => loadType.loadDetail)
+  @JoinColumn({ name: 'load_type_id' })
+  load_type?: LoadTypeEntity;
 
   @Column()
   created_by: number;

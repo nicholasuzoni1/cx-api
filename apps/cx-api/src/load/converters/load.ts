@@ -58,11 +58,13 @@ export class LoadConverter {
 
         output.load_uid = input.loadUid;
         output.title = input.title;
-        output.load_type = input.loadType;
-        output.vehicle_type = input.vehicleType;
+        output.load_type_id = input.loadTypeId;
+        output.vehicle_type_id = input.vehicleTypeId;
         output.weight_unit = input.weightUnit;
         output.weight = input.weight;
         output.dimension_unit = input.dimensionUnit;
+        output.milage = input?.milage || null;
+
         output.dimensions = {
           length: input.dimensions.length,
           width: input.dimensions.width,
@@ -157,11 +159,12 @@ export class LoadConverter {
         output.loadUid = subLoad?.load_uid || null;
         output.title = subLoad?.title || null;
         output.loadType = subLoad?.load_type || null;
-        output.vehicleType = (subLoad?.vehicle_type as Vehicle_Type) || null;
+        output.vehicleType = subLoad?.vehicle_type || null;
         output.weightUnit = (subLoad?.weight_unit as Weight_Unit_Type) || null;
         output.weight = subLoad?.weight || null;
         output.order = subLoad?.order;
         output.status = subLoad?.status;
+        output.milage = subLoad?.milage || null;
 
         output.dimensionUnit =
           (subLoad?.dimension_unit as Dimension_Unit_Type) || null;
@@ -251,14 +254,15 @@ export class LoadConverter {
         output.id = input?.id;
         output.load_uid = input.loadUid;
         output.title = input?.title;
-        output.load_type = input.loadType;
-        output.vehicle_type = input.vehicleType;
+        output.load_type_id = input.loadTypeId;
+        output.vehicle_type_id = input.vehicleTypeId;
         output.weight_unit = input.weightUnit;
         output.weight = input.weight;
         output.dimension_unit = input.dimensionUnit;
         output.order = input.order;
         output.loadId = loadId;
         output.created_by = createdBy;
+        output.milage = input?.milage || null;
 
         output.dimensions = {
           length: input.dimensions.length,

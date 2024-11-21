@@ -28,6 +28,14 @@ import { DocumentEntity } from '../entities/document.entity';
 import { ProfileModule } from './profile/profile.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { CostEstimationModule } from './cost-estimation/cost-estimation.module';
+
+import { VehicleTypeEntity } from '../entities/vehicle-type.entity';
+import { LoadTypeEntity } from '../entities/load-type.entity';
+import { VehicleLoadTypeEntity } from '../entities/vehicle-load-type.entity';
+import { SeederModule } from './seeder/seeder.module';
+import { MapModule } from './map/map.module';
+
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -71,6 +79,9 @@ import { join } from 'path';
         //AddressEntity,
         DocumentEntity,
         LoadDetailsEntity,
+        VehicleTypeEntity,
+        LoadTypeEntity,
+        VehicleLoadTypeEntity,
       ],
       synchronize: !!process.env.POSTGRES_DB_SYNC,
       useUTC: true,
@@ -85,6 +96,9 @@ import { join } from 'path';
     MailClientModule,
     PaymentModule,
     ProfileModule,
+    CostEstimationModule,
+    SeederModule,
+    MapModule,
   ],
   controllers: [DefaultController],
 })

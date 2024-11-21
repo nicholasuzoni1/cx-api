@@ -12,6 +12,8 @@ import {
   Weight_Unit_Type,
 } from '@app/load-managment/weight-types';
 import { ApiProperty } from '@nestjs/swagger';
+import { LoadTypeEntity } from 'apps/cx-api/entities/load-type.entity';
+import { VehicleTypeEntity } from 'apps/cx-api/entities/vehicle-type.entity';
 import { IsNumber } from 'class-validator';
 
 class LoadDimensionsResponseEntity {
@@ -65,12 +67,6 @@ export class LoadDetailsResponseEntity {
   title: string;
 
   @ApiProperty({
-    description: 'The type of load',
-    example: 'Briefly descripe your load',
-  })
-  loadType: string;
-
-  @ApiProperty({
     description: 'The unit of load',
     example: Weight_Unit_Names.kg,
   })
@@ -102,7 +98,19 @@ export class LoadDetailsResponseEntity {
     description: 'The vehicle tyoe',
     example: Vehicle_Type_Names['Dry Van'],
   })
-  vehicleType: Vehicle_Type;
+  vehicleType: VehicleTypeEntity;
+
+  @ApiProperty({
+    description: 'The type of load',
+    example: 'Briefly descripe your load',
+  })
+  loadType: LoadTypeEntity;
+
+  @ApiProperty({
+    type: String,
+    description: 'Total milage for the stop-over',
+  })
+  milage?: string;
 
   @ApiProperty({
     description: 'The pickup location details',
@@ -147,6 +155,12 @@ export class LoadDetailsResponseEntity {
     example: '1',
   })
   order: number;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+  })
+  estimatedBudget?: number;
 }
 
 export class LoadResponseEntity {
@@ -296,4 +310,10 @@ export class LoadResponseEntity {
     ],
   })
   loadDetails: LoadDetailsResponseEntity[];
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+  })
+  estimatedBudget?: number;
 }

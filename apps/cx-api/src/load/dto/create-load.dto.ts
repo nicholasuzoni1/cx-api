@@ -32,6 +32,7 @@ import {
   IsEnum,
 } from 'class-validator';
 import { LoadStatus } from '@app/load-managment/enums/load-statuses';
+import { VehicleTypeEntity } from 'apps/cx-api/entities/vehicle-type.entity';
 
 class LoadDimensions {
   @IsNotEmpty()
@@ -50,7 +51,7 @@ class LoadDimensions {
   height: number;
 }
 
-class LoadLocation {
+export class LoadLocation {
   //@IsNotEmpty()
   @IsOptional()
   @IsString()
@@ -179,13 +180,6 @@ export class CreateLoadDetailsDto {
   title: string;
 
   @IsNotEmpty()
-  @ApiProperty({
-    description: 'The type of load',
-    example: 'Briefly descripe your load',
-  })
-  loadType: string;
-
-  @IsNotEmpty()
   @IsIn(Weight_Unit_List)
   @ApiProperty({
     description: 'The unit of load',
@@ -221,13 +215,29 @@ export class CreateLoadDetailsDto {
   })
   dimensions: LoadDimensions;
 
-  @IsNotEmpty()
-  @IsIn(Vehicle_Type_List)
+  //@IsNotEmpty()
+  @IsOptional()
   @ApiProperty({
-    description: 'The vehicle tyoe',
-    example: Vehicle_Type_Names.DRY_VAN,
+    description: 'The id of vehicle type',
+    example: 1,
   })
-  vehicleType: Vehicle_Type;
+  vehicleTypeId?: number;
+
+  //@IsNotEmpty()
+  @IsOptional()
+  @ApiProperty({
+    description: 'The id of load type',
+    example: 'Briefly descripe your load',
+  })
+  loadTypeId?: number;
+
+  @IsOptional()
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Total milage for that stop-over.',
+  })
+  milage?: string;
 
   // @IsNotEmpty()
   @IsOptional()
@@ -393,8 +403,10 @@ export class CreateLoadDto {
     example: [
       {
         title: 'Load 1',
-        loadUid: 'Load_12345',
-        loadType: 'Briefly describe your load',
+        loadUid: 'Load_1',
+        loadTypeId: 1,
+        vehicleTypeId: 1,
+        milage: '20',
         weightUnit: Weight_Unit_Names.kg,
         weight: 50,
         dimensionUnit: Dimension_Unit_Names.cm,
@@ -403,7 +415,6 @@ export class CreateLoadDto {
           width: 10,
           height: 5,
         },
-        vehicleType: Vehicle_Type_Names.DRY_VAN,
         pickupLocation: {
           address: '123 Main St',
           lat: 31.509635,
@@ -421,8 +432,10 @@ export class CreateLoadDto {
       },
       {
         title: 'Load 2',
-        loadUid: 'Load_12346',
-        loadType: 'Another load description',
+        loadUid: 'Load_2',
+        vehicleTypeId: 1,
+        loadTypeId: 1,
+        milage: '25',
         weightUnit: Weight_Unit_Names.lb,
         weight: 100,
         dimensionUnit: Dimension_Unit_Names.in,
@@ -431,7 +444,6 @@ export class CreateLoadDto {
           width: 20,
           height: 10,
         },
-        vehicleType: Vehicle_Type_Names.FLATBED_TRUCK,
         pickupLocation: {
           address: '789 Another St',
           lat: 30.12345,
